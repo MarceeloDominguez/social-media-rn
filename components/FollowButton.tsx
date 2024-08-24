@@ -12,7 +12,7 @@ export default function FollowButton() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.light.tint,
+    backgroundColor: Colors.tint,
     height: 30,
     width: 100,
     justifyContent: "center",
@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     borderRadius: 30 / 2,
   },
   buttonText: {
-    color: Colors.dark.text,
+    color: Colors.background,
+    fontFamily: "RobotoMedium",
   },
 });

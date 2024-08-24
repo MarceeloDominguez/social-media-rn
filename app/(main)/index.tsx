@@ -7,7 +7,7 @@ import EmptyState from "@/components/EmptyState";
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container]}>
       <FlatList
         data={posts}
         keyExtractor={(_, index) => index.toString()}
@@ -23,7 +23,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.background,
   },
   contentContainerStyle: {
     padding: 12,

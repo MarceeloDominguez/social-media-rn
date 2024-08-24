@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   TextLayoutEventData,
+  StyleSheet,
 } from "react-native";
 import React, { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
@@ -44,6 +45,7 @@ export default function PostDescription() {
         <Text
           numberOfLines={isExpanded ? undefined : 2}
           onTextLayout={handleTextLayout}
+          style={styles.text}
         >
           Esse veniam id proident ea sit do.Pariatur esse aute minim eiusmod ea
           velit non id nulla culpa in labore ex pariatur. nulla culpa in labore
@@ -52,7 +54,7 @@ export default function PostDescription() {
       </Animated.View>
       {showMoreButton && (
         <TouchableOpacity onPress={handleToggleExpand} activeOpacity={1}>
-          <Text style={{ color: Colors.light.text, marginTop: 5 }}>
+          <Text style={styles.buttonShowMore}>
             {isExpanded ? "Ver menos" : "Ver más"}
           </Text>
         </TouchableOpacity>
@@ -60,3 +62,15 @@ export default function PostDescription() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    color: Colors.text,
+  },
+  buttonShowMore: {
+    color: Colors.tint,
+    marginTop: 5,
+    fontFamily: "RobotoBold",
+    fontSize: 12,
+  },
+});
