@@ -1,4 +1,11 @@
-import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Post, users } from "@/assets/data/data";
@@ -6,6 +13,7 @@ import FollowButton from "./FollowButton";
 import UserLikesCard from "./UserLikesCard";
 import PostDescription from "./PostDescription";
 import { Colors } from "@/constants/Colors";
+import { Link } from "expo-router";
 
 type PostCardProps = {
   post: Post;
@@ -25,17 +33,19 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.wrapperTopCard}>
-        <View style={styles.contentTopCard}>
-          <Image source={{ uri: user.avatar }} style={styles.avatar} />
-          <View style={{ flex: 1 }}>
-            <Text numberOfLines={1} style={styles.name}>
-              {user.name}
-            </Text>
-            <Text numberOfLines={1} style={styles.username}>
-              {user.username}
-            </Text>
-          </View>
-        </View>
+        <Link href={`/profile/${user.id}` as `${string}:${string}`} asChild>
+          <Pressable style={styles.contentTopCard}>
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            <View style={{ flex: 1 }}>
+              <Text numberOfLines={1} style={styles.name}>
+                {user.name}
+              </Text>
+              <Text numberOfLines={1} style={styles.username}>
+                {user.username}
+              </Text>
+            </View>
+          </Pressable>
+        </Link>
         <FollowButton />
       </View>
       <Image source={{ uri: post.image }} style={styles.imagePost} />

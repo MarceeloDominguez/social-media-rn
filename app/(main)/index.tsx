@@ -1,14 +1,34 @@
 import { posts } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PostCard from "@/components/PostCard";
 import EmptyState from "@/components/EmptyState";
 import HeaderComponent from "@/components/home/HeaderComponent";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Link } from "expo-router";
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container]}>
+      <Link href={"/create" as `${string}:${string}`} asChild>
+        <Pressable
+          style={{
+            backgroundColor: Colors.text,
+            width: 50,
+            height: 50,
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+            zIndex: 2,
+            borderRadius: 50 / 2,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Ionicons name="add-outline" size={28} color="#fff" />
+        </Pressable>
+      </Link>
       <FlatList
         keyboardShouldPersistTaps="handled"
         data={posts}
@@ -30,5 +50,6 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     gap: 10,
+    paddingBottom: 50,
   },
 });

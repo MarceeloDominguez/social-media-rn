@@ -5,11 +5,13 @@ import {
   ScrollView,
   Image,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import React from "react";
 import { users } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
 import SearchInput from "../SearchInput";
+import { Link } from "expo-router";
 
 export default function HeaderComponent() {
   return (
@@ -22,18 +24,28 @@ export default function HeaderComponent() {
         contentContainerStyle={styles.container}
       >
         {[...Array(5)].map((item, index) => (
-          <ImageBackground
-            source={{
-              uri: "https://cdn.pixabay.com/photo/2023/10/28/16/27/mountains-8347890_1280.jpg",
-            }}
+          <Link
+            href={`/profile/${users[0].id}` as `${string}:${string}`}
             key={index}
-            style={styles.imageBackground}
+            asChild
           >
-            <Image source={{ uri: users[0].avatar }} style={styles.avatar} />
-            <View style={styles.contentBottom}>
-              <Text style={styles.name}>Juan Pérez</Text>
-            </View>
-          </ImageBackground>
+            <Pressable>
+              <ImageBackground
+                source={{
+                  uri: "https://cdn.pixabay.com/photo/2023/10/28/16/27/mountains-8347890_1280.jpg",
+                }}
+                style={styles.imageBackground}
+              >
+                <Image
+                  source={{ uri: users[0].avatar }}
+                  style={styles.avatar}
+                />
+                <View style={styles.contentBottom}>
+                  <Text style={styles.name}>Juan Pérez</Text>
+                </View>
+              </ImageBackground>
+            </Pressable>
+          </Link>
         ))}
       </ScrollView>
     </>
