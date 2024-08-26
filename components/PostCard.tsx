@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     elevation: 2,
+    margin: 12,
   },
   wrapperTopCard: {
     flexDirection: "row",
