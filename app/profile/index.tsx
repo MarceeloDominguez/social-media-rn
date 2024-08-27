@@ -2,5 +2,5 @@ import React from "react";
 import { Redirect } from "expo-router";
 
 export default function index() {
-  return <Redirect href={"/profile[id]"} />;
+  return <Redirect href={"/profile[id]" as `${string}:${string}`} />;
 }
