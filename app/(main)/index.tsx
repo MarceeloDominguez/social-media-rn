@@ -12,20 +12,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={[styles.container]}>
       <Link href={"/create" as `${string}:${string}`} asChild>
-        <Pressable
-          style={{
-            backgroundColor: Colors.text,
-            width: 50,
-            height: 50,
-            position: "absolute",
-            bottom: 20,
-            right: 20,
-            zIndex: 2,
-            borderRadius: 50 / 2,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <Pressable style={styles.containerIconAdd}>
           <Ionicons name="add-outline" size={28} color="#fff" />
         </Pressable>
       </Link>
@@ -51,5 +38,17 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     gap: 10,
     paddingBottom: 50,
+  },
+  containerIconAdd: {
+    backgroundColor: Colors.text,
+    width: 50,
+    height: 50,
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    zIndex: 2,
+    borderRadius: 50 / 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

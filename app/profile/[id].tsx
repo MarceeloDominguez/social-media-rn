@@ -1,27 +1,25 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import React from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Colors } from "@/constants/Colors";
 import Animated, {
+  interpolate,
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { posts, users } from "@/assets/data/data";
+import PostCard from "@/components/PostCard";
+import HeaderComponent from "@/components/profile/HeaderComponent";
+import Feather from "@expo/vector-icons/Feather";
 
 export default function ProfileScreen() {
   const { id } = useLocalSearchParams();
   const scrollY = useSharedValue(0);
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const animatedHeaderStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       scrollY.value,
       [0, 100],
@@ -31,31 +29,39 @@ export default function ProfileScreen() {
     return { backgroundColor };
   });
 
+  const animatedTextStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollY.value, [0, 100], [0, 1]);
+
+    return { opacity };
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <View>
-        <Animated.View style={[animatedStyle, styles.wrapperIconBack]}>
+        <Animated.View style={[animatedHeaderStyle, styles.wrapperIconBack]}>
           <Pressable onPress={() => router.back()} style={styles.containerIcon}>
             <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
+          <Animated.Text style={[animatedTextStyle, styles.username]}>
+            {users[0].username}
+          </Animated.Text>
+          <Pressable style={styles.containerIcon}>
+            <Feather name="edit" size={22} color={Colors.text} />
+          </Pressable>
         </Animated.View>
       </View>
-      <ScrollView
+      <FlatList
+        data={posts}
+        keyExtractor={(_, i) => i.toString()}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainerStyle}
         onScroll={(e) => {
           scrollY.value = e.nativeEvent.contentOffset.y;
         }}
         scrollEventThrottle={16}
-      >
-        <Image
-          source={{
-            uri: "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
-          }}
-          style={{ width: "auto", aspectRatio: 1.5 }}
-        />
-      </ScrollView>
+        ListHeaderComponent={() => <HeaderComponent />}
+        renderItem={({ item }) => <PostCard post={item} />}
+      />
     </SafeAreaView>
   );
 }
@@ -69,15 +75,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   wrapperIconBack: {
-    height: 80,
+    height: 70,
     paddingHorizontal: 12,
-    justifyContent: "center",
     position: "absolute",
     right: 0,
     left: 0,
     zIndex: 1,
     bottom: 0,
     top: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   containerIcon: {
     backgroundColor: "rgba(245, 245, 245, 0.6)",
@@ -86,5 +94,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 40 / 2,
+  },
+  username: {
+    fontFamily: "RobotoBlack",
+    fontSize: 15,
   },
 });

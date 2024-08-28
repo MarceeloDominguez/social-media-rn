@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
   imageBackground: {
     width: 140,
     aspectRatio: 1,
-    backgroundColor: "green",
     justifyContent: "flex-end",
     alignItems: "center",
     borderRadius: 16,
