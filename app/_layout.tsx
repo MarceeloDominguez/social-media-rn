@@ -26,10 +26,12 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ animation: "fade" }}>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(main)" options={{ headerShown: false }} />
       <Stack.Screen name="search/[query]" />
       <Stack.Screen name="create" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

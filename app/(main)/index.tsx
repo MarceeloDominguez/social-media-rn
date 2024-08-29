@@ -1,6 +1,6 @@
 import { posts } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
-import { StyleSheet, FlatList, View, Text, Pressable } from "react-native";
+import { StyleSheet, FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PostCard from "@/components/PostCard";
 import EmptyState from "@/components/EmptyState";
