@@ -5,18 +5,43 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/constants/Colors";
 import { Link } from "expo-router";
+import { supabase } from "@/lib/supabase";
 
 export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const login = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      Alert.alert(error.message);
+      setLoading(false);
+      return;
+    }
+
+    setEmail("");
+    setPassword("");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainerStyle}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.containerInput}>
           <Text style={styles.label}>Ingrese el email</Text>
@@ -24,6 +49,8 @@ export default function SignIn() {
             placeholder="email@gmail.com"
             style={styles.input}
             keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
         <View style={styles.containerInput}>
@@ -32,11 +59,24 @@ export default function SignIn() {
             placeholder="************"
             style={styles.input}
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
         <View>
-          <TouchableOpacity activeOpacity={0.8} style={styles.button}>
-            <Text style={styles.textButton}>Iniciar sesión</Text>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.button}
+            onPress={login}
+            disabled={loading}
+          >
+            <Text style={styles.textButton}>
+              {loading ? (
+                <ActivityIndicator size={20} color="#fff" />
+              ) : (
+                "Iniciar sesión"
+              )}
+            </Text>
           </TouchableOpacity>
           <Text style={styles.textLink}>
             ¿No tienes una cuenta?
@@ -55,7 +95,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
     flex: 1,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 22,
   },
   contentContainerStyle: {
     flexGrow: 1,

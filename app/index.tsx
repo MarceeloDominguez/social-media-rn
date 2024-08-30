@@ -1,39 +1,33 @@
-import { View, ActivityIndicator } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import React from "react";
 import { Redirect } from "expo-router";
+import { useAuth } from "@/provider/AuthProvider";
+import { Colors } from "@/constants/Colors";
 
 export default function Index() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { session, loading } = useAuth();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAuthenticated(false);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "orange",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <ActivityIndicator color="red" size={30} />
+      <View style={styles.containerIndicator}>
+        <ActivityIndicator color={Colors.tint} size={22} />
       </View>
     );
   }
 
   //Redirige según el estado de autenticación
-  return isAuthenticated ? (
+  return session ? (
     <Redirect href="/(main)" />
   ) : (
     <Redirect href="/(auth)/sign-in" />
   );
 }
+
+const styles = StyleSheet.create({
+  containerIndicator: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

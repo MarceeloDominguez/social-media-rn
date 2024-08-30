@@ -5,18 +5,54 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import { supabase } from "@/lib/supabase";
 
 export default function SignUp() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const createAccount = async () => {
+    setLoading(true);
+    const { error, data } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+      Alert.alert(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const user = data.user;
+
+    if (user) {
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, full_name: name });
+
+      if (error) {
+        Alert.alert(error.message);
+      }
+    }
+
+    setEmail("");
+    setPassword("");
+    setName("");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainerStyle}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.containerInput}>
           <Text style={styles.label}>Ingrese un nombre</Text>
@@ -24,6 +60,8 @@ export default function SignUp() {
             placeholder="Juan Peréz"
             style={styles.input}
             keyboardType="default"
+            value={name}
+            onChangeText={setName}
           />
         </View>
         <View style={styles.containerInput}>
@@ -32,6 +70,8 @@ export default function SignUp() {
             placeholder="email@gmail.com"
             style={styles.input}
             keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
         <View style={styles.containerInput}>
@@ -40,11 +80,24 @@ export default function SignUp() {
             placeholder="************"
             style={styles.input}
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
         <View>
-          <TouchableOpacity activeOpacity={0.8} style={styles.button}>
-            <Text style={styles.textButton}>Crear cuenta</Text>
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.button}
+            onPress={createAccount}
+            disabled={loading}
+          >
+            <Text style={styles.textButton}>
+              {loading ? (
+                <ActivityIndicator size={20} color="#fff" />
+              ) : (
+                "Crear cuenta"
+              )}
+            </Text>
           </TouchableOpacity>
           <Text style={styles.textLink}>
             ¿Ya tienes una cuenta?
@@ -63,7 +116,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.background,
     flex: 1,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 22,
   },
   contentContainerStyle: {
     flexGrow: 1,

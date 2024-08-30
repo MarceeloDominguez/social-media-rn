@@ -1,14 +1,20 @@
 import { posts } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
-import { StyleSheet, FlatList, Pressable } from "react-native";
+import { StyleSheet, FlatList, Pressable, Button, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PostCard from "@/components/PostCard";
 import EmptyState from "@/components/EmptyState";
 import HeaderComponent from "@/components/home/HeaderComponent";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/provider/AuthProvider";
 
 export default function HomeScreen() {
+  const { profile } = useAuth();
+
+  //console.log(profile.full_name);
+
   return (
     <SafeAreaView style={[styles.container]}>
       <Link href={"/create" as `${string}:${string}`} asChild>
@@ -16,6 +22,8 @@ export default function HomeScreen() {
           <Ionicons name="add-outline" size={28} color="#fff" />
         </Pressable>
       </Link>
+      <Button title="Cerrar sesion" onPress={() => supabase.auth.signOut()} />
+      <Text>{profile?.full_name ? profile?.full_name : "No hay nombre"}</Text>
       <FlatList
         keyboardShouldPersistTaps="handled"
         data={posts}
