@@ -1,3 +1,4 @@
+import { User } from "@/assets/data/data";
 import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import React, {
@@ -10,7 +11,7 @@ import React, {
 
 type AuthData = {
   session: Session | null;
-  profile: any;
+  profile: User | null;
   loading: boolean;
 };
 

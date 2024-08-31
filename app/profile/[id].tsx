@@ -1,5 +1,11 @@
-import { View, StyleSheet, Pressable, FlatList } from "react-native";
-import React from "react";
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -10,14 +16,17 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { posts, users } from "@/assets/data/data";
+import { Post, User } from "@/assets/data/data";
 import PostCard from "@/components/PostCard";
 import HeaderComponent from "@/components/profile/HeaderComponent";
 import Feather from "@expo/vector-icons/Feather";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfileScreen() {
   const { id } = useLocalSearchParams();
   const scrollY = useSharedValue(0);
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[] | null>([]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -35,6 +44,44 @@ export default function ProfileScreen() {
     return { opacity };
   });
 
+  useEffect(() => {
+    const fetchAllPost = async () => {
+      const { data, error } = await supabase.from("post").select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setPosts(data);
+    };
+
+    fetchAllPost();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setUser(data);
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (!user) {
+    return <ActivityIndicator size={25} color="orange" />;
+  }
+
+  const myPosts = posts?.filter((post) => post.user_id === id);
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -44,7 +91,7 @@ export default function ProfileScreen() {
             <Ionicons name="arrow-back" size={22} color={Colors.text} />
           </Pressable>
           <Animated.Text style={[animatedTextStyle, styles.username]}>
-            {users[0].username}
+            {user?.username}
           </Animated.Text>
           <Pressable style={styles.containerIcon}>
             <Feather name="edit" size={22} color={Colors.text} />
@@ -52,14 +99,14 @@ export default function ProfileScreen() {
         </Animated.View>
       </View>
       <FlatList
-        data={posts}
+        data={myPosts}
         keyExtractor={(_, i) => i.toString()}
         showsVerticalScrollIndicator={false}
         onScroll={(e) => {
           scrollY.value = e.nativeEvent.contentOffset.y;
         }}
         scrollEventThrottle={16}
-        ListHeaderComponent={() => <HeaderComponent />}
+        ListHeaderComponent={() => <HeaderComponent user={user} />}
         renderItem={({ item }) => <PostCard post={item} />}
       />
     </SafeAreaView>

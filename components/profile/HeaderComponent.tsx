@@ -1,9 +1,17 @@
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
-import { users } from "@/assets/data/data";
+import { User, users } from "@/assets/data/data";
+import IconFollowing from "@expo/vector-icons/SimpleLineIcons";
+import { useAuth } from "@/provider/AuthProvider";
 
-export default function HeaderComponent() {
+type HeaderComponentProps = {
+  user: User | null;
+};
+
+export default function HeaderComponent({ user }: HeaderComponentProps) {
+  const { profile } = useAuth();
+
   return (
     <View style={styles.container}>
       <View>
@@ -16,22 +24,25 @@ export default function HeaderComponent() {
         <Image source={{ uri: users[0].avatar }} style={styles.avatar} />
       </View>
       <View style={styles.contentInfo}>
-        <Text style={styles.name}>Juan Pérez</Text>
-        <Text style={styles.location}>Buenos Aires, Argentina</Text>
-        <View style={styles.contentStatistics}>
-          <View style={styles.containerFollowers}>
-            <Text style={styles.textFollowers}>1000 Seguidores</Text>
+        <Text style={styles.name}>{user?.full_name}</Text>
+        <Text style={styles.location}>{user?.location}</Text>
+        <View style={styles.containerInfoUser}>
+          <View style={styles.contentStatistics}>
+            <View style={styles.containerFollowers}>
+              <Text style={styles.textFollowers}>1000 Seguidores</Text>
+            </View>
+            <View style={styles.lineDivision} />
+            <View style={styles.containerFollowers}>
+              <Text style={styles.textFollowers}>2000 Siguiendo</Text>
+            </View>
           </View>
-          <View style={styles.lineDivision} />
-          <View style={styles.containerFollowers}>
-            <Text style={styles.textFollowers}>2000 Siguiendo</Text>
-          </View>
+          {profile?.id === user?.id ? null : (
+            <Pressable style={styles.containerIconFollowing}>
+              <IconFollowing name={"user-following"} size={22} color="#fff" />
+            </Pressable>
+          )}
         </View>
-        <Text style={styles.bio}>
-          Aliquip adipisicing excepteur esse ad id ad sint. Ullamco veniam dolor
-          ad consequat velit laborum mollit irure est excepteur id officia
-          culpa.
-        </Text>
+        <Text style={styles.bio}>{user?.bio}</Text>
         <Text style={styles.titleMyPosts}>Mis Posts (2)</Text>
       </View>
     </View>
@@ -72,16 +83,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
   },
+  containerInfoUser: {
+    flexDirection: "row",
+    marginTop: 20,
+    gap: 5,
+  },
   contentStatistics: {
     flexDirection: "row",
     borderRadius: 8,
     overflow: "hidden",
-    marginTop: 20,
   },
   containerFollowers: {
     backgroundColor: "#e1ebe1",
     height: 40,
-    width: 150,
+    width: 130,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -89,6 +104,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "RobotoBold",
     letterSpacing: 0.3,
+  },
+  containerIconFollowing: {
+    width: 40,
+    height: 40,
+    backgroundColor: Colors.tint,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
   },
   lineDivision: {
     height: 40,

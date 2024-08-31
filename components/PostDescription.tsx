@@ -9,7 +9,11 @@ import {
 import React, { useRef, useState } from "react";
 import { Colors } from "@/constants/Colors";
 
-export default function PostDescription() {
+type PostDescriptionProps = {
+  description: string;
+};
+
+export default function PostDescription({ description }: PostDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMoreButton, setShowMoreButton] = useState(false);
   const [totalLines, setTotalLines] = useState(0);
@@ -47,9 +51,7 @@ export default function PostDescription() {
           onTextLayout={handleTextLayout}
           style={styles.text}
         >
-          Esse veniam id proident ea sit do.Pariatur esse aute minim eiusmod ea
-          velit non id nulla culpa in labore ex pariatur. nulla culpa in labore
-          ex pariatur.
+          {description}
         </Text>
       </Animated.View>
       {showMoreButton && (

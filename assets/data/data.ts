@@ -1,7 +1,7 @@
 // Estructura del usuario
-interface User {
+export interface User {
   id: string;
-  name: string;
+  full_name: string;
   username: string;
   email: string;
   bio: string;
@@ -12,7 +12,6 @@ interface User {
 // Estructura del post
 export interface Post {
   id: string;
-  title: string;
   description: string;
   image: string;
   user_id: string;
@@ -36,7 +35,7 @@ interface Save {
 export const users: User[] = [
   {
     id: "user1",
-    name: "Juan Pérez",
+    full_name: "Juan Pérez",
     username: "juanp",
     email: "juanp@example.com",
     bio: "Aficionado a la tecnología",
@@ -46,7 +45,7 @@ export const users: User[] = [
   },
   {
     id: "user2",
-    name: "María López",
+    full_name: "María López",
     username: "marial",
     email: "marial@example.com",
     bio: "Amante de la fotografía",
@@ -60,7 +59,6 @@ export const users: User[] = [
 export const posts: Post[] = [
   {
     id: "post1",
-    title: "Mi primer post",
     description: "Este es el contenido de mi primer post.",
     image:
       "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
@@ -68,7 +66,6 @@ export const posts: Post[] = [
   },
   {
     id: "post2",
-    title: "Explorando la naturaleza",
     description: "Un viaje por los paisajes más bellos.",
     image:
       "https://cdn.pixabay.com/photo/2024/07/05/22/30/penguin-8875750_960_720.jpg",
