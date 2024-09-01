@@ -4,6 +4,7 @@ import { Colors } from "@/constants/Colors";
 import { User, users } from "@/assets/data/data";
 import IconFollowing from "@expo/vector-icons/SimpleLineIcons";
 import { useAuth } from "@/provider/AuthProvider";
+import { useGetAllPostsByUser } from "@/api/post";
 
 type HeaderComponentProps = {
   user: User | null;
@@ -11,6 +12,7 @@ type HeaderComponentProps = {
 
 export default function HeaderComponent({ user }: HeaderComponentProps) {
   const { profile } = useAuth();
+  const { data: posts } = useGetAllPostsByUser(user?.id!);
 
   return (
     <View style={styles.container}>
@@ -43,7 +45,7 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
           )}
         </View>
         <Text style={styles.bio}>{user?.bio}</Text>
-        <Text style={styles.titleMyPosts}>Mis Posts (2)</Text>
+        <Text style={styles.titleMyPosts}>Mis Posts ({posts?.length})</Text>
       </View>
     </View>
   );

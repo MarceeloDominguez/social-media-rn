@@ -1,4 +1,3 @@
-import { Post, posts } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
 import { StyleSheet, FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,25 +6,10 @@ import EmptyState from "@/components/EmptyState";
 import HeaderComponent from "@/components/home/HeaderComponent";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useGetAllPosts } from "@/api/post";
 
 export default function HomeScreen() {
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    const fetchAllPost = async () => {
-      const { data, error } = await supabase.from("post").select("*");
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      setPosts(data);
-    };
-
-    fetchAllPost();
-  }, []);
+  const { data: posts } = useGetAllPosts();
 
   return (
     <SafeAreaView style={[styles.container]}>

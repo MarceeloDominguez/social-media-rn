@@ -8,12 +8,14 @@ import {
   Pressable,
 } from "react-native";
 import React from "react";
-import { users } from "@/assets/data/data";
 import { Colors } from "@/constants/Colors";
 import SearchInput from "../SearchInput";
 import { Link } from "expo-router";
+import { useGetAllProfile } from "@/api/profile";
 
 export default function HeaderComponent() {
+  const { data: users } = useGetAllProfile();
+
   return (
     <>
       <SearchInput placeholder="Buscar post..." />
@@ -23,10 +25,10 @@ export default function HeaderComponent() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
-        {[...Array(5)].map((item, index) => (
+        {users?.map((user) => (
           <Link
-            href={`/profile/${users[0].id}` as `${string}:${string}`}
-            key={index}
+            href={`/profile/${user.id}` as `${string}:${string}`}
+            key={user.id}
             asChild
           >
             <Pressable>
@@ -41,7 +43,9 @@ export default function HeaderComponent() {
                   style={styles.avatar}
                 />
                 <View style={styles.contentBottom}>
-                  <Text style={styles.name}>Juan Pérez</Text>
+                  <Text style={styles.name} numberOfLines={1}>
+                    {user.full_name}
+                  </Text>
                 </View>
               </ImageBackground>
             </Pressable>
