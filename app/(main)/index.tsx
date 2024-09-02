@@ -7,9 +7,14 @@ import HeaderComponent from "@/components/home/HeaderComponent";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
 import { useGetAllPosts } from "@/api/post";
+import Loading from "@/components/Loading";
 
 export default function HomeScreen() {
-  const { data: posts } = useGetAllPosts();
+  const { data: posts, isLoading } = useGetAllPosts();
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <SafeAreaView style={[styles.container]}>

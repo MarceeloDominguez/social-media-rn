@@ -8,6 +8,7 @@ import HeaderComponent from "@/components/profile/HeaderComponent";
 import { useGetProfileById } from "@/api/profile";
 import { useGetAllPostsByUser } from "@/api/post";
 import HeaderAnimated from "@/components/profile/HeaderAnimated";
+import Loading from "@/components/Loading";
 
 export default function ProfileScreen() {
   const { id } = useLocalSearchParams();
@@ -17,7 +18,12 @@ export default function ProfileScreen() {
 
   const { data: user } = useGetProfileById(idString);
 
-  const { data: posts } = useGetAllPostsByUser(idString);
+  const { data: posts, isLoading: isLoadingPost } =
+    useGetAllPostsByUser(idString);
+
+  if (isLoadingPost) {
+    return <Loading />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
