@@ -6,19 +6,23 @@ import {
   Image,
   StyleSheet,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import SearchInput from "../SearchInput";
 import { Link } from "expo-router";
 import { useGetAllProfile } from "@/api/profile";
-import Loading from "../Loading";
 
 export default function HeaderComponent() {
   const { data: users, isLoading: isLoadingUsers } = useGetAllProfile();
 
   if (isLoadingUsers) {
-    return <Loading />;
+    return (
+      <View style={styles.containerIcon}>
+        <ActivityIndicator size={22} color={Colors.tint} />
+      </View>
+    );
   }
 
   return (
@@ -100,5 +104,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#fff",
     fontFamily: "RobotoMedium",
+  },
+  containerIcon: {
+    height: 220,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
