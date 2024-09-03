@@ -53,5 +53,6 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 13,
     fontFamily: "RobotoMedium",
+    color: Colors.text,
   },
 });

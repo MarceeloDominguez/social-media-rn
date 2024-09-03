@@ -12,9 +12,14 @@ import { Colors } from "@/constants/Colors";
 import SearchInput from "../SearchInput";
 import { Link } from "expo-router";
 import { useGetAllProfile } from "@/api/profile";
+import Loading from "../Loading";
 
 export default function HeaderComponent() {
-  const { data: users } = useGetAllProfile();
+  const { data: users, isLoading: isLoadingUsers } = useGetAllProfile();
+
+  if (isLoadingUsers) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontFamily: "RobotoBold",
-    fontSize: 16,
+    fontSize: 18,
   },
   container: {
     gap: 6,

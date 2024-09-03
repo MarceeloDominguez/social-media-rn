@@ -68,6 +68,8 @@ export default function PostDescription({ description }: PostDescriptionProps) {
 const styles = StyleSheet.create({
   text: {
     color: Colors.text,
+    fontFamily: "RobotoMedium",
+    fontSize: 14,
   },
   buttonShowMore: {
     color: Colors.tint,

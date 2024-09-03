@@ -1,5 +1,6 @@
 import React from "react";
 import { Stack } from "expo-router";
+import { Colors } from "@/constants/Colors";
 
 export default function CreateStack() {
   return (
@@ -7,10 +8,11 @@ export default function CreateStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Crear post",
+          title: "Crear una publicación",
           headerShadowVisible: false,
           headerTitleAlign: "center",
-          headerTitleStyle: { fontFamily: "RobotoBold" },
+          headerTitleStyle: { fontFamily: "RobotoBold", fontSize: 16 },
+          headerStyle: { backgroundColor: Colors.background },
         }}
       />
     </Stack>

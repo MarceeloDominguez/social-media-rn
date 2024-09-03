@@ -78,9 +78,9 @@ export default function PostCard({ post }: PostCardProps) {
         <View style={styles.contentBottomEnd}>
           <View style={styles.contentIconHeart}>
             <Text style={styles.countLikes}>100</Text>
-            <Ionicons name="heart-outline" size={22} color="black" />
+            <Ionicons name="heart-outline" size={22} color={Colors.icon} />
           </View>
-          <Ionicons name="bookmark-outline" size={22} color="black" />
+          <Ionicons name="bookmark-outline" size={22} color={Colors.icon} />
         </View>
       </View>
       <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: 4 }}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.tint,
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: "RobotoBold",
     marginRight: 5,
   },
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: "RobotoMedium",
     marginRight: 5,
+    fontSize: 13,
   },
   imagePost: {
     width: "100%",
@@ -148,6 +149,7 @@ const styles = StyleSheet.create({
   countLikes: {
     fontSize: 13,
     fontFamily: "RobotoMedium",
+    color: Colors.text,
   },
   time: {
     textAlign: "right",
