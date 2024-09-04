@@ -15,6 +15,13 @@ export interface Post {
   description: string;
   image: string;
   user_id: string;
+  created_at: string;
+}
+
+export interface InsertPost {
+  description: string;
+  image: string | null | undefined;
+  user_id: string | null | undefined;
 }
 
 // Estructura de la tabla Me gusta
@@ -63,6 +70,7 @@ export const posts: Post[] = [
     image:
       "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
     user_id: "user1",
+    created_at: "hace 1 hora",
   },
   {
     id: "post2",
@@ -70,6 +78,7 @@ export const posts: Post[] = [
     image:
       "https://cdn.pixabay.com/photo/2024/07/05/22/30/penguin-8875750_960_720.jpg",
     user_id: "user2",
+    created_at: "hace 1 hora",
   },
 ];
 

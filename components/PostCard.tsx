@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Post } from "@/assets/data/data";
 import FollowButton from "./FollowButton";
@@ -18,6 +18,8 @@ import { useAuth } from "@/provider/AuthProvider";
 import Svg, { Path } from "react-native-svg";
 import { useGetProfileById } from "@/api/profile";
 import ImageDefault from "./ImageDefault";
+import { formatDate } from "@/util/formatDate";
+import { supabase } from "@/lib/supabase";
 
 type PostCardProps = {
   post: Post;
@@ -26,6 +28,35 @@ type PostCardProps = {
 export default function PostCard({ post }: PostCardProps) {
   const { profile } = useAuth();
   const pathname = usePathname();
+  const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!post.image) return;
+
+    const getImageUrl = async () => {
+      setImage("");
+
+      const { data, error } = await supabase.storage
+        .from("posts-images")
+        .download(post.image);
+
+      if (error) {
+        console.log(error, "error al descargar la imagen");
+      }
+
+      if (data) {
+        const fr = new FileReader();
+        fr.readAsDataURL(data);
+        fr.onload = () => {
+          setImage(fr.result as string);
+        };
+      }
+    };
+
+    getImageUrl();
+  }, [post.image]);
+
+  const formattedDate = formatDate(post.created_at);
 
   const { data: user, isLoading: isLoadingUser } = useGetProfileById(
     post.user_id
@@ -68,8 +99,8 @@ export default function PostCard({ post }: PostCardProps) {
           {profile?.id === post.user_id ? null : <FollowButton />}
         </View>
       )}
-      {post.image ? (
-        <Image source={{ uri: post.image }} style={styles.imagePost} />
+      {image ? (
+        <Image source={{ uri: image }} style={styles.imagePost} />
       ) : (
         <ImageDefault />
       )}
@@ -85,7 +116,7 @@ export default function PostCard({ post }: PostCardProps) {
       </View>
       <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: 4 }}>
         <PostDescription description={post.description} />
-        <Text style={styles.time}>1 hour ago</Text>
+        <Text style={styles.time}>{formattedDate}</Text>
       </View>
     </View>
   );
