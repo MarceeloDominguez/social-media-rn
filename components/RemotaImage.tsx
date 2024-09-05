@@ -21,7 +21,15 @@ export default function RemotaImage({
 
     const getImageUrl = async () => {
       setLoading(true);
-      setImage("");
+      setImage(null);
+
+      // Verifica si el path es una URI local o un archivo remoto
+      if (path.startsWith("file://")) {
+        // Si es una URI local, no descargar de Supabase
+        setImage(path);
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase.storage
         .from("posts-images")
@@ -43,10 +51,6 @@ export default function RemotaImage({
     };
 
     getImageUrl();
-
-    if (!image) {
-      getImageUrl();
-    }
   }, [path]);
 
   return loading ? (

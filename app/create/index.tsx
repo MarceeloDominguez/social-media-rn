@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
@@ -206,7 +207,15 @@ export default function CreatePostScreen() {
       <Text style={styles.label}>Subir imagén</Text>
       <Pressable onPress={pickImage} style={styles.containerImage}>
         {image ? (
-          <RemotaImage path={image!} style={styles.imageSvg} fallback={image} />
+          isUpdating ? (
+            <RemotaImage
+              path={image}
+              style={styles.imageSvg}
+              fallback={image}
+            />
+          ) : (
+            <Image style={styles.imageSvg} source={{ uri: image }} />
+          )
         ) : (
           <Svg viewBox="0 0 24 24" fill="none" style={styles.imageSvg}>
             <Path
@@ -235,10 +244,10 @@ export default function CreatePostScreen() {
       />
       {errors && <Text style={styles.errors}>{errors}</Text>}
       <TouchableOpacity
-        activeOpacity={1}
+        activeOpacity={0.8}
         style={styles.button}
         onPress={handleOnSubmit}
-        disabled={isPendingCreatingPost}
+        disabled={isPendingCreatingPost || isPendingUpdatedPost}
       >
         <Text style={styles.textButton}>
           {isUpdating ? "Editar" : "Agregar"}
