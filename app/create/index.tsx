@@ -5,19 +5,27 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Image,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Svg, { Path } from "react-native-svg";
-import { useCreatePost } from "@/api/post";
+import {
+  useCreatePost,
+  useDeletePost,
+  useGetPost,
+  useUpdatePost,
+} from "@/api/post";
 import { useAuth } from "@/provider/AuthProvider";
-import { router } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { decode } from "base64-arraybuffer";
 import { supabase } from "@/lib/supabase";
 import * as FileSystem from "expo-file-system";
 import { randomUUID } from "expo-crypto";
+import { AntDesign } from "@expo/vector-icons";
+import Loading from "@/components/Loading";
+import RemotaImage from "@/components/RemotaImage";
 
 export default function CreatePostScreen() {
   const [description, setDescription] = useState("");
@@ -26,9 +34,32 @@ export default function CreatePostScreen() {
 
   const { profile } = useAuth();
 
-  const { mutate: createPost } = useCreatePost();
+  const { id: idString } = useLocalSearchParams();
 
-  let isUpdating = false;
+  const id = parseFloat(
+    typeof idString === "string" ? idString : idString?.[0]
+  );
+
+  const { mutate: createPost, isPending: isPendingCreatingPost } =
+    useCreatePost();
+  const { mutate: deletePost, isPending: isPendingDeletePost } =
+    useDeletePost();
+  const { mutate: updatePost, isPending: isPendingUpdatedPost } =
+    useUpdatePost();
+  const { data: updatingPost } = useGetPost(id);
+
+  const isUpdating = !!idString;
+
+  useEffect(() => {
+    if (updatingPost) {
+      setImage(updatingPost.image);
+      setDescription(updatingPost.description);
+    }
+  }, [updatingPost]);
+
+  if (isPendingDeletePost || isPendingCreatingPost || isPendingUpdatedPost) {
+    return <Loading />;
+  }
 
   const resetFields = () => {
     setDescription("");
@@ -54,7 +85,6 @@ export default function CreatePostScreen() {
   const handleOnSubmit = () => {
     if (isUpdating) {
       onUpdatePost();
-      console.log("Editar post...");
     } else {
       onCreatePost();
     }
@@ -79,10 +109,23 @@ export default function CreatePostScreen() {
     );
   };
 
-  const onUpdatePost = () => {
+  const onUpdatePost = async () => {
     if (!validateInput()) {
       return;
     }
+
+    const imagePath = await uploadImage();
+
+    //update and save in the db
+    updatePost(
+      { id, description, image: imagePath! },
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+        },
+      }
+    );
   };
 
   const pickImage = async () => {
@@ -113,12 +156,31 @@ export default function CreatePostScreen() {
       .from("posts-images")
       .upload(filePath, decode(base64), { contentType });
 
-    console.log(error, "Error al subir la imagen");
-    console.log(data, "Subir imagen");
+    //console.log("Error al subir la imagen", error);
 
     if (data) {
       return data.path;
     }
+  };
+
+  const onDelete = () => {
+    deletePost(id, {
+      onSuccess: () => {
+        resetFields();
+        router.replace("/");
+      },
+    });
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      "Confirmar",
+      "¿Estás seguro de que deseas eliminar esta publicación?",
+      [
+        { text: "Cancelar" },
+        { text: "Eliminar", style: "destructive", onPress: onDelete },
+      ]
+    );
   };
 
   return (
@@ -127,10 +189,24 @@ export default function CreatePostScreen() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
+      <Stack.Screen
+        options={{
+          title: isUpdating ? "Editar la publicación" : "Crear una publicación",
+          headerRight: () =>
+            isUpdating && (
+              <AntDesign
+                name="delete"
+                size={22}
+                color={Colors.text}
+                onPress={confirmDelete}
+              />
+            ),
+        }}
+      />
       <Text style={styles.label}>Subir imagén</Text>
       <Pressable onPress={pickImage} style={styles.containerImage}>
         {image ? (
-          <Image style={styles.imageSvg} source={{ uri: image! }} />
+          <RemotaImage path={image!} style={styles.imageSvg} fallback={image} />
         ) : (
           <Svg viewBox="0 0 24 24" fill="none" style={styles.imageSvg}>
             <Path
@@ -162,8 +238,11 @@ export default function CreatePostScreen() {
         activeOpacity={1}
         style={styles.button}
         onPress={handleOnSubmit}
+        disabled={isPendingCreatingPost}
       >
-        <Text style={styles.textButton}>Agregar</Text>
+        <Text style={styles.textButton}>
+          {isUpdating ? "Editar" : "Agregar"}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );

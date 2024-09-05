@@ -8,10 +8,9 @@ export default function CreateStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Crear una publicación",
           headerShadowVisible: false,
           headerTitleAlign: "center",
-          headerTitleStyle: { fontFamily: "RobotoBold", fontSize: 16 },
+          headerTitleStyle: { fontFamily: "RobotoBold", fontSize: 18 },
           headerStyle: { backgroundColor: Colors.background },
         }}
       />

@@ -24,6 +24,12 @@ export interface InsertPost {
   user_id: string | null | undefined;
 }
 
+export interface UpdatePost {
+  description: string;
+  image: string;
+  id: number;
+}
+
 // Estructura de la tabla Me gusta
 interface Like {
   id: string;

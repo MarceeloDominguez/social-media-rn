@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Ionicons, FontAwesome6 } from "@expo/vector-icons";
 import { Post } from "@/assets/data/data";
 import FollowButton from "./FollowButton";
 import UserLikesCard from "./UserLikesCard";
@@ -19,7 +19,7 @@ import Svg, { Path } from "react-native-svg";
 import { useGetProfileById } from "@/api/profile";
 import ImageDefault from "./ImageDefault";
 import { formatDate } from "@/util/formatDate";
-import { supabase } from "@/lib/supabase";
+import RemotaImage from "./RemotaImage";
 
 type PostCardProps = {
   post: Post;
@@ -28,33 +28,6 @@ type PostCardProps = {
 export default function PostCard({ post }: PostCardProps) {
   const { profile } = useAuth();
   const pathname = usePathname();
-  const [image, setImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!post.image) return;
-
-    const getImageUrl = async () => {
-      setImage("");
-
-      const { data, error } = await supabase.storage
-        .from("posts-images")
-        .download(post.image);
-
-      if (error) {
-        console.log(error, "error al descargar la imagen");
-      }
-
-      if (data) {
-        const fr = new FileReader();
-        fr.readAsDataURL(data);
-        fr.onload = () => {
-          setImage(fr.result as string);
-        };
-      }
-    };
-
-    getImageUrl();
-  }, [post.image]);
 
   const formattedDate = formatDate(post.created_at);
 
@@ -96,11 +69,22 @@ export default function PostCard({ post }: PostCardProps) {
               </View>
             </Pressable>
           </Link>
-          {profile?.id === post.user_id ? null : <FollowButton />}
+          {profile?.id === post.user_id ? (
+            <Link
+              href={`/create?id=${post.id}` as `${string}:${string}`}
+              asChild
+            >
+              <Pressable style={styles.containerIconEdit}>
+                <FontAwesome6 name="edit" size={22} color={Colors.icon} />
+              </Pressable>
+            </Link>
+          ) : (
+            <FollowButton />
+          )}
         </View>
       )}
-      {image ? (
-        <Image source={{ uri: image }} style={styles.imagePost} />
+      {post.image ? (
+        <RemotaImage path={post.image} style={styles.imagePost} />
       ) : (
         <ImageDefault />
       )}
@@ -134,11 +118,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 10,
     paddingVertical: 12,
+    gap: 10,
   },
   contentTopCard: {
     flexDirection: "row",
     gap: 10,
     flex: 1,
+  },
+  containerIconEdit: {
+    width: 45,
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatar: {
     width: 45,

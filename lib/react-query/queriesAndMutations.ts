@@ -1,4 +1,4 @@
-import { InsertPost, Post, User } from "@/assets/data/data";
+import { InsertPost, UpdatePost, User } from "@/assets/data/data";
 import { supabase } from "../supabase";
 
 //POST
@@ -44,6 +44,43 @@ export const createPost = async (post: InsertPost) => {
   }
 
   return newPost;
+};
+
+export const deletePost = async (id: number) => {
+  const { error } = await supabase.from("post").delete().eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const updatePost = async (post: UpdatePost) => {
+  const { data: updatedPosts, error } = await supabase
+    .from("post")
+    .update({ image: post.image, description: post.description })
+    .eq("id", post.id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return updatedPosts;
+};
+
+export const getPost = async (id: number) => {
+  const { data: post, error } = await supabase
+    .from("post")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return post as UpdatePost;
 };
 
 //PROFILE
