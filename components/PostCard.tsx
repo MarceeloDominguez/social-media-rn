@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { Ionicons, FontAwesome6 } from "@expo/vector-icons";
-import { Post } from "@/assets/data/data";
+import { GroupedData, Post } from "@/assets/data/data";
 import FollowButton from "./FollowButton";
 import UserLikesCard from "./UserLikesCard";
 import PostDescription from "./PostDescription";
@@ -20,6 +20,8 @@ import { useGetProfileById } from "@/api/profile";
 import ImageDefault from "./ImageDefault";
 import { formatDate } from "@/util/formatDate";
 import RemotaImage from "./RemotaImage";
+import { useAddLike, useGetLikes, useRemoveLike } from "@/api/post";
+import Loading from "./Loading";
 
 type PostCardProps = {
   post: Post;
@@ -29,11 +31,46 @@ export default function PostCard({ post }: PostCardProps) {
   const { profile } = useAuth();
   const pathname = usePathname();
 
+  if (!profile) {
+    return null;
+  }
+
   const formattedDate = formatDate(post.created_at);
 
   const { data: user, isLoading: isLoadingUser } = useGetProfileById(
     post.user_id
   );
+
+  const { data: likes } = useGetLikes(post.id);
+  const { mutate: addLike } = useAddLike();
+  const { mutate: removeLike } = useRemoveLike();
+
+  const alreadyLiked = likes?.some((like) => like.user_id === profile?.id);
+
+  const toggleLike = () => {
+    if (alreadyLiked) {
+      removeLike({ postId: post.id, userId: profile?.id });
+    } else {
+      addLike({ postId: post.id, userId: profile?.id });
+    }
+  };
+
+  // const groupedLikes = likes?.reduce<GroupedData>((acc, item) => {
+  //   if (!acc[Number(item.post_id)]) {
+  //     acc[Number(item.post_id)] = [];
+  //   }
+
+  //   // Si `profiles` es un array, itera sobre él
+  //   if (Array.isArray(item.profiles)) {
+  //     item.profiles.forEach((profile) => {
+  //       acc[Number(item.post_id)].push(profile);
+  //     });
+  //   } else {
+  //     acc[Number(item.post_id)].push(item.profiles);
+  //   }
+
+  //   return acc;
+  // }, {} as GroupedData);
 
   if (isLoadingUser) {
     return (
@@ -45,7 +82,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <View style={styles.container}>
-      {pathname === "/" && (
+      {pathname === "/" ? (
         <View style={styles.wrapperTopCard}>
           <Link href={`/profile/${user?.id}` as `${string}:${string}`} asChild>
             <Pressable style={styles.contentTopCard}>
@@ -82,6 +119,8 @@ export default function PostCard({ post }: PostCardProps) {
             <FollowButton />
           )}
         </View>
+      ) : (
+        <View style={{ height: 20, backgroundColor: "#fff" }} />
       )}
       {post.image ? (
         <RemotaImage path={post.image} style={styles.imagePost} />
@@ -92,8 +131,13 @@ export default function PostCard({ post }: PostCardProps) {
         <UserLikesCard />
         <View style={styles.contentBottomEnd}>
           <View style={styles.contentIconHeart}>
-            <Text style={styles.countLikes}>100</Text>
-            <Ionicons name="heart-outline" size={22} color={Colors.icon} />
+            <Text style={styles.countLikes}>{likes?.length}</Text>
+            <Ionicons
+              name={alreadyLiked ? "heart" : "heart-outline"}
+              size={22}
+              color={alreadyLiked ? "#dd0808" : Colors.icon}
+              onPress={toggleLike}
+            />
           </View>
           <Ionicons name="bookmark-outline" size={22} color={Colors.icon} />
         </View>
@@ -112,6 +156,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     elevation: 2,
     margin: 12,
+    overflow: "hidden",
   },
   wrapperTopCard: {
     flexDirection: "row",

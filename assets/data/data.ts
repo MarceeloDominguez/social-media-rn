@@ -30,11 +30,21 @@ export interface UpdatePost {
   id: number;
 }
 
+export interface GroupedData {
+  [key: number]: Profile[];
+}
+
+interface Profile {
+  full_name: string;
+  avatar_url: string;
+}
+
 // Estructura de la tabla Me gusta
-interface Like {
+export interface Like {
   id: string;
-  id_user: string;
-  id_post: string;
+  user_id: string;
+  post_id: string;
+  profiles: Profile | Profile[];
 }
 
 // Estructura de la tabla Guardados
@@ -92,13 +102,15 @@ export const posts: Post[] = [
 export const likes: Like[] = [
   {
     id: "like1",
-    id_user: "user2",
-    id_post: "post1",
+    user_id: "user2",
+    post_id: "post1",
+    profiles: { full_name: "", avatar_url: "" },
   },
   {
     id: "like2",
-    id_user: "user1",
-    id_post: "post2",
+    user_id: "user1",
+    post_id: "post2",
+    profiles: { full_name: "", avatar_url: "" },
   },
 ];
 

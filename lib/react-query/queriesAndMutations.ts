@@ -1,4 +1,10 @@
-import { InsertPost, UpdatePost, User } from "@/assets/data/data";
+import {
+  GroupedData,
+  InsertPost,
+  Like,
+  UpdatePost,
+  User,
+} from "@/assets/data/data";
 import { supabase } from "../supabase";
 
 //POST
@@ -81,6 +87,61 @@ export const getPost = async (id: number) => {
   }
 
   return post as UpdatePost;
+};
+
+export const getLikes = async (postId: string) => {
+  // const { data: likes, error } = await supabase
+  //   .from("likes")
+  //   //.select("*")
+  //   //.select(`user_id, profiles ( full_name, avatar_url )`)
+  //   .select(
+  //     `
+  //     id,
+  //     post_id,
+  //     user_id,
+  //     profiles ( full_name, avatar_url )
+  //   `
+  //   )
+  //   .eq("post_id", postId);
+
+  const { data: likes, error } = await supabase
+    .from("likes")
+    .select("*")
+    .eq("post_id", postId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  console.log(likes);
+
+  return likes as Like[];
+};
+
+export const addLike = async (postId: string, userId: string) => {
+  const { data, error } = await supabase
+    .from("likes")
+    .insert([{ post_id: postId, user_id: userId }]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const removeLike = async (postId: string, userId: string) => {
+  const { data, error } = await supabase
+    .from("likes")
+    .delete()
+    .eq("post_id", postId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 //PROFILE

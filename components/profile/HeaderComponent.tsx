@@ -27,7 +27,9 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
       </View>
       <View style={styles.contentInfo}>
         <Text style={styles.name}>{user?.full_name}</Text>
-        <Text style={styles.location}>{user?.location}</Text>
+        {user?.location && (
+          <Text style={styles.location}>{user?.location}</Text>
+        )}
         <View style={styles.containerInfoUser}>
           <View style={styles.contentStatistics}>
             <View style={styles.containerFollowers}>
@@ -44,8 +46,14 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
             </Pressable>
           )}
         </View>
-        <Text style={styles.bio}>{user?.bio}</Text>
-        <Text style={styles.titleMyPosts}>Mis Posts ({posts?.length})</Text>
+        {user?.bio && <Text style={styles.bio}>{user?.bio}</Text>}
+        <Text style={styles.titleMyPosts}>
+          {!posts?.length
+            ? "Aún no tienes ninguna publicación"
+            : profile?.id === user?.id
+            ? `Mis posts (${posts?.length})`
+            : `Sus posts (${posts?.length})`}
+        </Text>
       </View>
     </View>
   );
