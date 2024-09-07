@@ -1,10 +1,4 @@
-import {
-  GroupedData,
-  InsertPost,
-  Like,
-  UpdatePost,
-  User,
-} from "@/assets/data/data";
+import { InsertPost, Like, UpdatePost, User } from "@/assets/data/data";
 import { supabase } from "../supabase";
 
 //POST
@@ -90,32 +84,23 @@ export const getPost = async (id: number) => {
 };
 
 export const getLikes = async (postId: string) => {
-  // const { data: likes, error } = await supabase
-  //   .from("likes")
-  //   //.select("*")
-  //   //.select(`user_id, profiles ( full_name, avatar_url )`)
-  //   .select(
-  //     `
-  //     id,
-  //     post_id,
-  //     user_id,
-  //     profiles ( full_name, avatar_url )
-  //   `
-  //   )
-  //   .eq("post_id", postId);
-
   const { data: likes, error } = await supabase
     .from("likes")
-    .select("*")
+    .select(
+      `
+      id,
+      post_id,
+      user_id,
+      profiles ( full_name, avatar_url )
+    `
+    )
     .eq("post_id", postId);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  console.log(likes);
-
-  return likes as Like[];
+  return likes as unknown as Like[];
 };
 
 export const addLike = async (postId: string, userId: string) => {

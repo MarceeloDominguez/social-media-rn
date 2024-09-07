@@ -30,10 +30,6 @@ export interface UpdatePost {
   id: number;
 }
 
-export interface GroupedData {
-  [key: number]: Profile[];
-}
-
 interface Profile {
   full_name: string;
   avatar_url: string;
@@ -44,7 +40,7 @@ export interface Like {
   id: string;
   user_id: string;
   post_id: string;
-  profiles: Profile | Profile[];
+  profiles: Profile;
 }
 
 // Estructura de la tabla Guardados

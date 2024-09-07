@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React from "react";
 import { Ionicons, FontAwesome6 } from "@expo/vector-icons";
-import { GroupedData, Post } from "@/assets/data/data";
+import { Post } from "@/assets/data/data";
 import FollowButton from "./FollowButton";
 import UserLikesCard from "./UserLikesCard";
 import PostDescription from "./PostDescription";
@@ -21,7 +21,6 @@ import ImageDefault from "./ImageDefault";
 import { formatDate } from "@/util/formatDate";
 import RemotaImage from "./RemotaImage";
 import { useAddLike, useGetLikes, useRemoveLike } from "@/api/post";
-import Loading from "./Loading";
 
 type PostCardProps = {
   post: Post;
@@ -30,12 +29,6 @@ type PostCardProps = {
 export default function PostCard({ post }: PostCardProps) {
   const { profile } = useAuth();
   const pathname = usePathname();
-
-  if (!profile) {
-    return null;
-  }
-
-  const formattedDate = formatDate(post.created_at);
 
   const { data: user, isLoading: isLoadingUser } = useGetProfileById(
     post.user_id
@@ -49,28 +42,11 @@ export default function PostCard({ post }: PostCardProps) {
 
   const toggleLike = () => {
     if (alreadyLiked) {
-      removeLike({ postId: post.id, userId: profile?.id });
+      removeLike({ postId: post.id, userId: profile?.id! });
     } else {
-      addLike({ postId: post.id, userId: profile?.id });
+      addLike({ postId: post.id, userId: profile?.id! });
     }
   };
-
-  // const groupedLikes = likes?.reduce<GroupedData>((acc, item) => {
-  //   if (!acc[Number(item.post_id)]) {
-  //     acc[Number(item.post_id)] = [];
-  //   }
-
-  //   // Si `profiles` es un array, itera sobre él
-  //   if (Array.isArray(item.profiles)) {
-  //     item.profiles.forEach((profile) => {
-  //       acc[Number(item.post_id)].push(profile);
-  //     });
-  //   } else {
-  //     acc[Number(item.post_id)].push(item.profiles);
-  //   }
-
-  //   return acc;
-  // }, {} as GroupedData);
 
   if (isLoadingUser) {
     return (
@@ -79,6 +55,8 @@ export default function PostCard({ post }: PostCardProps) {
       </View>
     );
   }
+
+  const formattedDate = formatDate(post.created_at);
 
   return (
     <View style={styles.container}>
@@ -128,10 +106,12 @@ export default function PostCard({ post }: PostCardProps) {
         <ImageDefault />
       )}
       <View style={styles.wrapperBottomCard}>
-        <UserLikesCard />
+        <UserLikesCard postId={post.id} />
         <View style={styles.contentBottomEnd}>
           <View style={styles.contentIconHeart}>
-            <Text style={styles.countLikes}>{likes?.length}</Text>
+            <Text style={styles.countLikes}>
+              {likes?.length !== 0 && likes?.length}
+            </Text>
             <Ionicons
               name={alreadyLiked ? "heart" : "heart-outline"}
               size={22}
