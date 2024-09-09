@@ -8,8 +8,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useGetProfileById } from "@/api/profile";
+import { useAuth } from "@/provider/AuthProvider";
 
 type HeaderAnimatedProps = {
   scrollY: SharedValue<number>;
@@ -18,6 +19,7 @@ type HeaderAnimatedProps = {
 
 export default function HeaderAnimated({ scrollY, id }: HeaderAnimatedProps) {
   const { data: user } = useGetProfileById(id);
+  const { profile } = useAuth();
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -44,9 +46,13 @@ export default function HeaderAnimated({ scrollY, id }: HeaderAnimatedProps) {
         <Animated.Text style={[animatedTextStyle, styles.username]}>
           {user?.username}
         </Animated.Text>
-        <Pressable style={styles.containerIcon}>
-          <Feather name="edit" size={22} color={Colors.text} />
-        </Pressable>
+        {profile?.id === user?.id && (
+          <Link href={`/profile/edit?id=${user?.id}` as any} asChild>
+            <Pressable style={styles.containerIcon}>
+              <Feather name="edit" size={22} color={Colors.text} />
+            </Pressable>
+          </Link>
+        )}
       </Animated.View>
     </View>
   );
