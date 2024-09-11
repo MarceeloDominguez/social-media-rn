@@ -83,6 +83,7 @@ export const getPost = async (id: number) => {
   return post as UpdatePost;
 };
 
+//LIKES
 export const getLikes = async (postId: string) => {
   const { data: likes, error } = await supabase
     .from("likes")
@@ -127,6 +128,66 @@ export const removeLike = async (postId: string, userId: string) => {
   }
 
   return data;
+};
+
+//FOLLOWS
+export const followUser = async (followerId: string, followingId: string) => {
+  const { data, error } = await supabase
+    .from("follows")
+    .insert([{ follower_id: followerId, following_id: followingId }]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const unfollowUser = async (followerId: string, followingId: string) => {
+  const { data, error } = await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", followerId)
+    .eq("following_id", followingId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+// export const getFollowers = async (userId: string) => {
+//   const { data: followers, error } = await supabase
+//     .from("follows")
+//     .select(
+//       `
+//       follower_id,
+//       profiles!follower_id ( full_name, avatar_url )
+//     `
+//     )
+//     .eq("following_id", userId);
+
+//   if (error) {
+//     throw new Error(error.message);
+//   }
+
+//   return followers;
+// };
+
+export const isFollowing = async (followerId: string, followingId: string) => {
+  const { data, error } = await supabase
+    .from("follows")
+    .select("*")
+    .eq("follower_id", followerId)
+    .eq("following_id", followingId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ? true : false;
 };
 
 //PROFILE

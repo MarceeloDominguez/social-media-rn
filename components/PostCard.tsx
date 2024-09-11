@@ -94,7 +94,7 @@ export default function PostCard({ post }: PostCardProps) {
               </Pressable>
             </Link>
           ) : (
-            <FollowButton />
+            <FollowButton followingId={user?.id} />
           )}
         </View>
       ) : (
