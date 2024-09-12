@@ -1,13 +1,8 @@
-import { Text, Pressable, StyleSheet } from "react-native";
+import { Text, Pressable, StyleSheet, ActivityIndicator } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { useAuth } from "@/provider/AuthProvider";
-import {
-  useFollowUser,
-  //useGetFollowers,
-  useIsFollowing,
-  useUnFollowUser,
-} from "@/api/post";
+import { useFollowUser, useGetFollowers, useUnFollowUser } from "@/api/post";
 
 type FollowButtonProps = {
   followingId: string | undefined;
@@ -15,18 +10,17 @@ type FollowButtonProps = {
 
 export default function FollowButton({ followingId }: FollowButtonProps) {
   const { profile } = useAuth();
-  const {
-    data: isFollowing,
-    isLoading,
-    refetch,
-  } = useIsFollowing(profile?.id!, followingId!);
-  const { mutate: followUser, isPending: isFollowLoading } = useFollowUser();
-  const { mutate: unFollowUser, isPending: isUnFollowLoading } =
+
+  const { mutate: followUser, isPending: isPendingFollowUser } =
+    useFollowUser();
+  const { mutate: unFollowUser, isPending: isPendingUnFollowUser } =
     useUnFollowUser();
 
-  //const { data: followers } = useGetFollowers(followingId!);
+  const { data: followers, isLoading } = useGetFollowers(followingId!);
 
-  //const isFollowing = followers?.some((f) => f.follower_id === profile?.id);
+  console.log(followers);
+
+  const isFollowing = followers?.some((f) => f.follower_id === profile?.id);
 
   const handleToggleFollowsUnfollows = () => {
     if (isFollowing) {
@@ -36,16 +30,19 @@ export default function FollowButton({ followingId }: FollowButtonProps) {
     }
   };
 
-  if (isLoading || isFollowLoading || isUnFollowLoading) {
+  if (isLoading || isPendingFollowUser || isPendingUnFollowUser) {
     return (
-      <Pressable style={styles.container}>
-        <Text style={styles.buttonText}>Cargando...</Text>
+      <Pressable style={[styles.container, { width: isFollowing ? 120 : 100 }]}>
+        <ActivityIndicator size={15} color="#fff" />
       </Pressable>
     );
   }
 
   return (
-    <Pressable style={styles.container} onPress={handleToggleFollowsUnfollows}>
+    <Pressable
+      style={[styles.container, { width: isFollowing ? 120 : 100 }]}
+      onPress={handleToggleFollowsUnfollows}
+    >
       <Text style={styles.buttonText}>
         {isFollowing ? "Dejar de seguir" : "Seguir"}
       </Text>
@@ -57,7 +54,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.tint,
     height: 30,
-    width: 100,
+    //width: 100,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 30 / 2,
