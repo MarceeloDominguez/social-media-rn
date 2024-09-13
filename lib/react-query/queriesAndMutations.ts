@@ -175,6 +175,24 @@ export const getFollowers = async (userId: string) => {
   return followers;
 };
 
+export const getFollowing = async (userId: string) => {
+  const { data: following, error } = await supabase
+    .from("follows")
+    .select(
+      `
+      following_id,
+      profiles!following_id ( full_name, avatar_url )
+    `
+    )
+    .eq("follower_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return following;
+};
+
 //PROFILE
 export const getProfileById = async (userId: string) => {
   const { data, error } = await supabase

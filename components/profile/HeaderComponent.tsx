@@ -4,7 +4,13 @@ import { Colors } from "@/constants/Colors";
 import { User, users } from "@/assets/data/data";
 import IconFollowing from "@expo/vector-icons/SimpleLineIcons";
 import { useAuth } from "@/provider/AuthProvider";
-import { useGetAllPostsByUser } from "@/api/post";
+import {
+  useFollowUser,
+  useGetAllPostsByUser,
+  useGetFollowers,
+  useGetFollowing,
+  useUnFollowUser,
+} from "@/api/post";
 
 type HeaderComponentProps = {
   user: User | null;
@@ -13,6 +19,21 @@ type HeaderComponentProps = {
 export default function HeaderComponent({ user }: HeaderComponentProps) {
   const { profile } = useAuth();
   const { data: posts } = useGetAllPostsByUser(user?.id!);
+  const { mutate: followUser } = useFollowUser();
+  const { mutate: unFollowUser } = useUnFollowUser();
+
+  const { data: followers } = useGetFollowers(user?.id!);
+  const { data: following } = useGetFollowing(user?.id!);
+
+  const isFollowing = followers?.some((f) => f.follower_id === profile?.id);
+
+  const handleToggleFollowsUnfollows = () => {
+    if (isFollowing) {
+      unFollowUser({ followerId: profile?.id!, followingId: user?.id! });
+    } else {
+      followUser({ followerId: profile?.id!, followingId: user?.id! });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -33,16 +54,30 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
         <View style={styles.containerInfoUser}>
           <View style={styles.contentStatistics}>
             <View style={styles.containerFollowers}>
-              <Text style={styles.textFollowers}>1000 Seguidores</Text>
+              <Text style={styles.textFollowers}>
+                {followers?.length} Seguidores
+              </Text>
             </View>
             <View style={styles.lineDivision} />
             <View style={styles.containerFollowers}>
-              <Text style={styles.textFollowers}>2000 Siguiendo</Text>
+              <Text style={styles.textFollowers}>
+                {following?.length} Siguiendo
+              </Text>
             </View>
           </View>
           {profile?.id === user?.id ? null : (
-            <Pressable style={styles.containerIconFollowing}>
-              <IconFollowing name={"user-following"} size={22} color="#fff" />
+            <Pressable
+              onPress={handleToggleFollowsUnfollows}
+              style={[
+                styles.containerIconFollowing,
+                { backgroundColor: isFollowing ? Colors.tint : "#e1ebe1" },
+              ]}
+            >
+              <IconFollowing
+                name={isFollowing ? "user-following" : "user-follow"}
+                size={22}
+                color={isFollowing ? "#fff" : "#000"}
+              />
             </Pressable>
           )}
         </View>
@@ -118,7 +153,7 @@ const styles = StyleSheet.create({
   containerIconFollowing: {
     width: 40,
     height: 40,
-    backgroundColor: Colors.tint,
+    //backgroundColor: Colors.tint,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 8,

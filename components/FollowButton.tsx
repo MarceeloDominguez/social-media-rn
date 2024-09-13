@@ -18,8 +18,6 @@ export default function FollowButton({ followingId }: FollowButtonProps) {
 
   const { data: followers, isLoading } = useGetFollowers(followingId!);
 
-  console.log(followers);
-
   const isFollowing = followers?.some((f) => f.follower_id === profile?.id);
 
   const handleToggleFollowsUnfollows = () => {

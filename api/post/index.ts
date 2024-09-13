@@ -7,6 +7,7 @@ import {
   getAllPosts,
   getAllPostsByUser,
   getFollowers,
+  getFollowing,
   getLikes,
   getPost,
   removeLike,
@@ -115,9 +116,12 @@ export const useFollowUser = () => {
       followerId: string;
       followingId: string;
     }) => followUser(followerId, followingId),
-    onSuccess: () => {
+    onSuccess: (_, data) => {
       queryClient.invalidateQueries({
-        queryKey: ["follows"],
+        queryKey: ["follows", data.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["following", data.followerId],
       });
     },
   });
@@ -134,9 +138,12 @@ export const useUnFollowUser = () => {
       followerId: string;
       followingId: string;
     }) => unfollowUser(followerId, followingId),
-    onSuccess: () => {
+    onSuccess: (_, data) => {
       queryClient.invalidateQueries({
-        queryKey: ["follows"],
+        queryKey: ["follows", data.followingId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["following", data.followerId],
       });
     },
   });
@@ -146,5 +153,12 @@ export const useGetFollowers = (userId: string) => {
   return useQuery({
     queryKey: ["follows", userId],
     queryFn: () => getFollowers(userId),
+  });
+};
+
+export const useGetFollowing = (userId: string) => {
+  return useQuery({
+    queryKey: ["following", userId],
+    queryFn: () => getFollowing(userId),
   });
 };
