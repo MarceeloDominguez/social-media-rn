@@ -11,6 +11,7 @@ import {
   useGetFollowing,
   useUnFollowUser,
 } from "@/api/post";
+import { Link } from "expo-router";
 
 type HeaderComponentProps = {
   user: User | null;
@@ -18,20 +19,25 @@ type HeaderComponentProps = {
 
 export default function HeaderComponent({ user }: HeaderComponentProps) {
   const { profile } = useAuth();
-  const { data: posts } = useGetAllPostsByUser(user?.id!);
+
+  if (!user || !profile) {
+    return null;
+  }
+
+  const { data: posts } = useGetAllPostsByUser(user?.id);
   const { mutate: followUser } = useFollowUser();
   const { mutate: unFollowUser } = useUnFollowUser();
 
-  const { data: followers } = useGetFollowers(user?.id!);
-  const { data: following } = useGetFollowing(user?.id!);
+  const { data: followers } = useGetFollowers(user?.id);
+  const { data: following } = useGetFollowing(user?.id);
 
   const isFollowing = followers?.some((f) => f.follower_id === profile?.id);
 
   const handleToggleFollowsUnfollows = () => {
     if (isFollowing) {
-      unFollowUser({ followerId: profile?.id!, followingId: user?.id! });
+      unFollowUser({ followerId: profile?.id, followingId: user?.id });
     } else {
-      followUser({ followerId: profile?.id!, followingId: user?.id! });
+      followUser({ followerId: profile?.id, followingId: user?.id });
     }
   };
 
@@ -53,17 +59,27 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
         )}
         <View style={styles.containerInfoUser}>
           <View style={styles.contentStatistics}>
-            <View style={styles.containerFollowers}>
-              <Text style={styles.textFollowers}>
-                {followers?.length} Seguidores
-              </Text>
-            </View>
+            <Link
+              href={`/list-users?followers=${JSON.stringify(followers)}`}
+              asChild
+            >
+              <Pressable style={styles.containerFollowers}>
+                <Text style={styles.textFollowers}>
+                  {followers?.length} Seguidores
+                </Text>
+              </Pressable>
+            </Link>
             <View style={styles.lineDivision} />
-            <View style={styles.containerFollowers}>
-              <Text style={styles.textFollowers}>
-                {following?.length} Siguiendo
-              </Text>
-            </View>
+            <Link
+              href={`/list-users?following=${JSON.stringify(following)}`}
+              asChild
+            >
+              <Pressable style={styles.containerFollowers}>
+                <Text style={styles.textFollowers}>
+                  {following?.length} Siguiendo
+                </Text>
+              </Pressable>
+            </Link>
           </View>
           {profile?.id === user?.id ? null : (
             <Pressable

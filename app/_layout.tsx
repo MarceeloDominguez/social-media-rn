@@ -35,6 +35,7 @@ export default function RootLayout() {
           <Stack.Screen name="search/[query]" />
           <Stack.Screen name="create" options={{ headerShown: false }} />
           <Stack.Screen name="profile" options={{ headerShown: false }} />
+          <Stack.Screen name="list-users" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
