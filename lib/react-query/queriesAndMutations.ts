@@ -163,7 +163,7 @@ export const getFollowers = async (userId: string) => {
     .select(
       `
       follower_id,
-      profiles!follower_id ( full_name, avatar_url )
+      profiles!follower_id ( full_name, avatar_url, bio )
     `
     )
     .eq("following_id", userId);
@@ -181,7 +181,7 @@ export const getFollowing = async (userId: string) => {
     .select(
       `
       following_id,
-      profiles!following_id ( full_name, avatar_url )
+      profiles!following_id ( full_name, avatar_url, bio )
     `
     )
     .eq("follower_id", userId);
