@@ -6,6 +6,7 @@ import {
   followUser,
   getAllPosts,
   getAllPostsByUser,
+  getAllPostsLikedByUser,
   getFollowers,
   getFollowing,
   getLikes,
@@ -88,6 +89,7 @@ export const useAddLike = () => {
       addLike(postId, userId),
     onSuccess: (_, data) => {
       queryClient.invalidateQueries({ queryKey: ["likes", data.postId] });
+      queryClient.invalidateQueries({ queryKey: ["likes", data.userId] });
     },
   });
 };
@@ -100,7 +102,15 @@ export const useRemoveLike = () => {
       removeLike(postId, userId),
     onSuccess: (_, data) => {
       queryClient.invalidateQueries({ queryKey: ["likes", data.postId] });
+      queryClient.invalidateQueries({ queryKey: ["likes", data.userId] });
     },
+  });
+};
+
+export const useGetAllPostsLikedByUser = (userId: string) => {
+  return useQuery({
+    queryKey: ["likes", userId],
+    queryFn: () => getAllPostsLikedByUser(userId),
   });
 };
 

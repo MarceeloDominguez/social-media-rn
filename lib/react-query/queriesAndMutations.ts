@@ -1,4 +1,11 @@
-import { InsertPost, Like, UpdatePost, User } from "@/assets/data/data";
+import {
+  InsertPost,
+  Like,
+  Post,
+  PostsLiked,
+  UpdatePost,
+  User,
+} from "@/assets/data/data";
 import { supabase } from "../supabase";
 
 //POST
@@ -128,6 +135,20 @@ export const removeLike = async (postId: string, userId: string) => {
   }
 
   return data;
+};
+
+export const getAllPostsLikedByUser = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("likes")
+    .select("*, post(*)")
+    .order("created_at", { ascending: false })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as PostsLiked[];
 };
 
 //FOLLOWS

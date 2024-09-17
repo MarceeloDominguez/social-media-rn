@@ -46,12 +46,17 @@ export default function HeaderAnimated({ scrollY, id }: HeaderAnimatedProps) {
         <Animated.Text style={[animatedTextStyle, styles.username]}>
           {user?.username}
         </Animated.Text>
-        {profile?.id === user?.id && (
-          <Link href={`/profile/edit?id=${user?.id}` as any} asChild>
+        {profile?.id === user?.id ? (
+          <Link
+            href={`/profile/edit?id=${user?.id}` as `${string}:${string}`}
+            asChild
+          >
             <Pressable style={styles.containerIcon}>
               <Feather name="edit" size={22} color={Colors.text} />
             </Pressable>
           </Link>
+        ) : (
+          <View style={{ width: 40, height: 40 }} />
         )}
       </Animated.View>
     </View>

@@ -24,9 +24,10 @@ import { useAddLike, useGetLikes, useRemoveLike } from "@/api/post";
 
 type PostCardProps = {
   post: Post;
+  showUser?: boolean;
 };
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, showUser = false }: PostCardProps) {
   const { profile } = useAuth();
   const pathname = usePathname();
 
@@ -60,7 +61,7 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <View style={styles.container}>
-      {pathname === "/" ? (
+      {pathname === "/" || showUser ? (
         <View style={styles.wrapperTopCard}>
           <Link href={`/profile/${user?.id}` as `${string}:${string}`} asChild>
             <Pressable style={styles.contentTopCard}>
