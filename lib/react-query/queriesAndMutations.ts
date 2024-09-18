@@ -3,6 +3,7 @@ import {
   Like,
   Post,
   PostsLiked,
+  PostsSaved,
   UpdatePost,
   User,
 } from "@/assets/data/data";
@@ -149,6 +150,47 @@ export const getAllPostsLikedByUser = async (userId: string) => {
   }
 
   return data as PostsLiked[];
+};
+
+//SAVE
+export const savePost = async (postId: string, userId: string) => {
+  const { data, error } = await supabase
+    .from("saved")
+    .insert([{ post_id: postId, user_id: userId }]);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const removeSavedPost = async (postId: string, userId: string) => {
+  const { data, error } = await supabase
+    .from("saved")
+    .delete()
+    .eq("post_id", postId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+export const getAllPostsSavedByUser = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("saved")
+    .select("*, post(*)")
+    .order("created_at", { ascending: false })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as PostsSaved[];
 };
 
 //FOLLOWS

@@ -7,11 +7,14 @@ import {
   getAllPosts,
   getAllPostsByUser,
   getAllPostsLikedByUser,
+  getAllPostsSavedByUser,
   getFollowers,
   getFollowing,
   getLikes,
   getPost,
   removeLike,
+  removeSavedPost,
+  savePost,
   unfollowUser,
   updatePost,
 } from "@/lib/react-query/queriesAndMutations";
@@ -111,6 +114,40 @@ export const useGetAllPostsLikedByUser = (userId: string) => {
   return useQuery({
     queryKey: ["likes", userId],
     queryFn: () => getAllPostsLikedByUser(userId),
+  });
+};
+
+//SAVE
+export const useSavePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, userId }: { postId: string; userId: string }) =>
+      savePost(postId, userId),
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ["savedPosts", data.postId] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts", data.userId] });
+    },
+  });
+};
+
+export const useRemoveSavePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, userId }: { postId: string; userId: string }) =>
+      removeSavedPost(postId, userId),
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries({ queryKey: ["savedPosts", data.postId] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts", data.userId] });
+    },
+  });
+};
+
+export const useGetAllPostsSavedByUser = (userId: string) => {
+  return useQuery({
+    queryKey: ["savedPosts", userId],
+    queryFn: () => getAllPostsSavedByUser(userId),
   });
 };
 

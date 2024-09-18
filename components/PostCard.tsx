@@ -20,7 +20,14 @@ import { useGetProfileById } from "@/api/profile";
 import ImageDefault from "./ImageDefault";
 import { formatDate } from "@/util/formatDate";
 import RemotaImage from "./RemotaImage";
-import { useAddLike, useGetLikes, useRemoveLike } from "@/api/post";
+import {
+  useAddLike,
+  useGetAllPostsSavedByUser,
+  useGetLikes,
+  useRemoveLike,
+  useRemoveSavePost,
+  useSavePost,
+} from "@/api/post";
 
 type PostCardProps = {
   post: Post;
@@ -35,6 +42,7 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
     post.user_id
   );
 
+  //functionality for "liking" a post
   const { data: likes } = useGetLikes(post.id);
   const { mutate: addLike } = useAddLike();
   const { mutate: removeLike } = useRemoveLike();
@@ -46,6 +54,21 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
       removeLike({ postId: post.id, userId: profile?.id! });
     } else {
       addLike({ postId: post.id, userId: profile?.id! });
+    }
+  };
+
+  //functionality to "save" a post
+  const { data: savedPosts } = useGetAllPostsSavedByUser(profile?.id!);
+  const { mutate: savePost } = useSavePost();
+  const { mutate: removeSavePost } = useRemoveSavePost();
+
+  const alreadySaved = savedPosts?.some((save) => save.post_id === post.id);
+
+  const toggleSaved = () => {
+    if (alreadySaved) {
+      removeSavePost({ postId: post.id, userId: profile?.id! });
+    } else {
+      savePost({ postId: post.id, userId: profile?.id! });
     }
   };
 
@@ -120,7 +143,12 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
               onPress={toggleLike}
             />
           </View>
-          <Ionicons name="bookmark-outline" size={22} color={Colors.icon} />
+          <Ionicons
+            name={alreadySaved ? "bookmark" : "bookmark-outline"}
+            size={22}
+            color={alreadySaved ? Colors.tint : Colors.icon}
+            onPress={toggleSaved}
+          />
         </View>
       </View>
       <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: 4 }}>

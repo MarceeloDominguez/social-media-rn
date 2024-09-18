@@ -42,6 +42,13 @@ export interface PostsLiked {
   post: Post;
 }
 
+export interface PostsSaved {
+  id: string;
+  user_id: string;
+  post_id: string;
+  post: Post;
+}
+
 // Estructura de la tabla Me gusta
 export interface Like {
   id: string;
