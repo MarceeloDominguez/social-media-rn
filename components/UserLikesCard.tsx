@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { useGetLikes } from "@/api/post";
@@ -8,6 +15,8 @@ import Svg, { Path } from "react-native-svg";
 type UserLikesCardProps = {
   postId: string;
 };
+
+const { width: WIDTH_SCREEN } = Dimensions.get("screen");
 
 export default function UserLikesCard({ postId }: UserLikesCardProps) {
   const { data: likes, isLoading } = useGetLikes(postId);
@@ -48,7 +57,7 @@ export default function UserLikesCard({ postId }: UserLikesCardProps) {
               ]}
               numberOfLines={1}
             >
-              {user.full_name.slice(0, 20)}{" "}
+              {user.full_name.slice(0, WIDTH_SCREEN > 411 ? 20 : 14)}{" "}
               {users.length > 1 && " y ...ver más"}
             </Text>
           )}

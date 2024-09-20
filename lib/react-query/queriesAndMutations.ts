@@ -5,6 +5,7 @@ import {
   PostsLiked,
   PostsSaved,
   UpdatePost,
+  UpdateUser,
   User,
 } from "@/assets/data/data";
 import { supabase } from "../supabase";
@@ -279,4 +280,26 @@ export const getAllProfiles = async () => {
   }
 
   return data as User[];
+};
+
+export const updateProfile = async (profile: UpdateUser) => {
+  const { data: updatedProfile, error } = await supabase
+    .from("profiles")
+    .update({
+      username: profile.username,
+      full_name: profile.full_name,
+      avatar_url: null,
+      bio: profile.bio,
+      location: profile.location,
+      banner: null,
+    })
+    .eq("id", profile.id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return updatedProfile;
 };

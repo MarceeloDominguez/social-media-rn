@@ -8,13 +8,97 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import React from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
+import { useGetProfileById, useUpdateProfile } from "@/api/profile";
+import Loading from "@/components/Loading";
 
 export default function ScreenEditProfile() {
+  const [fullname, setFullname] = useState("");
+  const [username, setUsername] = useState("@");
+  const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
+  const [avatar, setAvatar] = useState<string | null>("");
+  const [banner, setBanner] = useState<string | null>("");
+  const [errors, setErrors] = useState("");
+
   const { id } = useLocalSearchParams();
+
+  const { data: updatingProfile } = useGetProfileById(id.toString());
+
+  const {
+    mutate: updateProfile,
+    isPending: isPendingUpdatedProfile,
+    error,
+  } = useUpdateProfile();
+
+  useEffect(() => {
+    if (updatingProfile) {
+      setFullname(updatingProfile.full_name);
+      setUsername(updatingProfile.username);
+      setLocation(updatingProfile.location);
+      setBio(updatingProfile.bio);
+    }
+  }, [updatingProfile]);
+
+  if (isPendingUpdatedProfile) {
+    return <Loading />;
+  }
+
+  const resetFields = () => {
+    setFullname("");
+    setUsername("@");
+    setLocation("");
+    setBio("");
+  };
+
+  const validateInput = () => {
+    setErrors("");
+
+    if (!fullname) {
+      setErrors("* El nombre es requerido");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleOnSubmit = () => {
+    if (!validateInput()) {
+      return;
+    }
+
+    updateProfile(
+      {
+        full_name: fullname,
+        username,
+        location,
+        bio,
+        id: id.toString(),
+        avatar: null,
+        banner: null,
+      },
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+        },
+      }
+    );
+  };
+
+  const handleUsernameChange = (text: string) => {
+    // Mantener siempre el @ al inicio y evitar múltiples @
+    if (!text.startsWith("@")) {
+      setUsername(`@${text.replace(/@/g, "")}`);
+    } else {
+      // Solo permitir un @ al principio y eliminar cualquier otro @
+      const cleanedText = `@${text.slice(1).replace(/@/g, "")}`;
+      setUsername(cleanedText);
+    }
+  };
 
   return (
     <ScrollView
@@ -63,17 +147,32 @@ export default function ScreenEditProfile() {
       </View>
       <View style={[styles.containerInput, { marginTop: 50 }]}>
         <Text style={styles.label}>Mi nombre</Text>
-        <TextInput placeholder="Juan Peréz" style={styles.input} />
+        <TextInput
+          placeholder="Juan Peréz"
+          style={styles.input}
+          value={fullname}
+          onChangeText={setFullname}
+        />
       </View>
       <View style={styles.containerInput}>
-        <Text style={styles.label}>Mi subnombre</Text>
-        <TextInput placeholder="@juanperéz" style={styles.input} />
+        <Text style={styles.label}>Mi username</Text>
+        <TextInput
+          placeholder="@juanperéz"
+          style={styles.input}
+          value={username}
+          onChangeText={handleUsernameChange}
+        />
+        {error && (
+          <Text style={styles.errors}>El username ya existe. Elegí otro!</Text>
+        )}
       </View>
       <View style={styles.containerInput}>
         <Text style={styles.label}>Mi ubicación</Text>
         <TextInput
           placeholder="Por ej. : Buenos Aires, Argentina"
           style={styles.input}
+          value={location}
+          onChangeText={setLocation}
         />
       </View>
       <View style={styles.containerInput}>
@@ -86,9 +185,17 @@ export default function ScreenEditProfile() {
             styles.input,
             { height: 120, textAlignVertical: "top", paddingVertical: 10 },
           ]}
+          value={bio}
+          onChangeText={setBio}
         />
       </View>
-      <TouchableOpacity activeOpacity={0.8} style={styles.button}>
+      {errors && <Text style={styles.errors}>{errors}</Text>}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={styles.button}
+        onPress={handleOnSubmit}
+        disabled={isPendingUpdatedProfile}
+      >
         <Text style={styles.textButton}>Editar mi perfil</Text>
       </TouchableOpacity>
     </ScrollView>
