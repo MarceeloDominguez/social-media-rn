@@ -14,13 +14,20 @@ import { Colors } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { useGetProfileById, useUpdateProfile } from "@/api/profile";
 import Loading from "@/components/Loading";
+import Svg, { Path } from "react-native-svg";
+import * as ImagePicker from "expo-image-picker";
+import { supabase } from "@/lib/supabase";
+import { randomUUID } from "expo-crypto";
+import { decode } from "base64-arraybuffer";
+import * as FileSystem from "expo-file-system";
+import RemotaImage from "@/components/RemotaImage";
 
 export default function ScreenEditProfile() {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("@");
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState<string | null>("");
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>("");
   const [errors, setErrors] = useState("");
 
@@ -40,6 +47,7 @@ export default function ScreenEditProfile() {
       setUsername(updatingProfile.username);
       setLocation(updatingProfile.location);
       setBio(updatingProfile.bio);
+      setAvatar(updatingProfile.avatar_url);
     }
   }, [updatingProfile]);
 
@@ -65,10 +73,12 @@ export default function ScreenEditProfile() {
     return true;
   };
 
-  const handleOnSubmit = () => {
+  const handleOnSubmit = async () => {
     if (!validateInput()) {
       return;
     }
+
+    const avatarPath = await uploadAvatar();
 
     updateProfile(
       {
@@ -77,7 +87,7 @@ export default function ScreenEditProfile() {
         location,
         bio,
         id: id.toString(),
-        avatar: null,
+        avatar_url: avatarPath!,
         banner: null,
       },
       {
@@ -97,6 +107,41 @@ export default function ScreenEditProfile() {
       // Solo permitir un @ al principio y eliminar cualquier otro @
       const cleanedText = `@${text.slice(1).replace(/@/g, "")}`;
       setUsername(cleanedText);
+    }
+  };
+
+  const pickAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
+
+  const uploadAvatar = async () => {
+    if (!avatar?.startsWith("file://")) {
+      return;
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(avatar, {
+      encoding: "base64",
+    });
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, decode(base64), { contentType });
+
+    console.log("Error al subir el avatar...", error);
+
+    if (data) {
+      return data.path;
     }
   };
 
@@ -127,16 +172,43 @@ export default function ScreenEditProfile() {
           color={Colors.text}
           style={styles.iconEditPortada}
         />
-        <Pressable
-          onPress={() => console.log("Editar avatar...")}
-          style={styles.containerIconAvatar}
-        >
-          <Image
-            source={{
-              uri: "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
-            }}
-            style={styles.avatar}
-          />
+        <Pressable onPress={pickAvatar} style={styles.containerIconAvatar}>
+          {updatingProfile?.avatar_url ? (
+            <View style={styles.containerAvatar}>
+              <RemotaImage
+                path={updatingProfile.avatar_url}
+                style={styles.avatar}
+                downloadStorage="avatars"
+              />
+            </View>
+          ) : (
+            <View style={styles.containerAvatar}>
+              <Svg style={styles.avatar} viewBox="0 0 54 54" fill="none">
+                <Path
+                  d="M27 0.00146484C12.0899 0.00146484 0 12.089 0 27.0003C0 41.9116 12.0887 53.9991 27 53.9991C41.9125 53.9991 54 41.9116 54 27.0003C54 12.089 41.9125 0.00146484 27 0.00146484ZM27 8.07443C31.9337 8.07443 35.9316 12.0735 35.9316 17.0048C35.9316 21.9373 31.9337 25.9353 27 25.9353C22.0687 25.9353 18.0708 21.9373 18.0708 17.0048C18.0708 12.0735 22.0687 8.07443 27 8.07443ZM26.9941 46.9401C22.0734 46.9401 17.5667 45.1481 14.0906 42.182C13.2438 41.4597 12.7552 40.4007 12.7552 39.2894C12.7552 34.2881 16.803 30.2854 21.8054 30.2854H32.197C37.2006 30.2854 41.2329 34.2881 41.2329 39.2894C41.2329 40.4018 40.7467 41.4586 39.8987 42.1808C36.4238 45.1481 31.9159 46.9401 26.9941 46.9401Z"
+                  fill="#ccc"
+                />
+              </Svg>
+            </View>
+          )}
+          {/* {updatingProfile?.avatar_url ? (
+            <View style={styles.containerAvatar}>
+              <RemotaImage
+                path={updatingProfile.avatar_url}
+                style={styles.avatar}
+                downloadStorage="avatars"
+              />
+            </View>
+          ) : (
+            <View style={styles.containerAvatar}>
+              <Svg style={styles.avatar} viewBox="0 0 54 54" fill="none">
+                <Path
+                  d="M27 0.00146484C12.0899 0.00146484 0 12.089 0 27.0003C0 41.9116 12.0887 53.9991 27 53.9991C41.9125 53.9991 54 41.9116 54 27.0003C54 12.089 41.9125 0.00146484 27 0.00146484ZM27 8.07443C31.9337 8.07443 35.9316 12.0735 35.9316 17.0048C35.9316 21.9373 31.9337 25.9353 27 25.9353C22.0687 25.9353 18.0708 21.9373 18.0708 17.0048C18.0708 12.0735 22.0687 8.07443 27 8.07443ZM26.9941 46.9401C22.0734 46.9401 17.5667 45.1481 14.0906 42.182C13.2438 41.4597 12.7552 40.4007 12.7552 39.2894C12.7552 34.2881 16.803 30.2854 21.8054 30.2854H32.197C37.2006 30.2854 41.2329 34.2881 41.2329 39.2894C41.2329 40.4018 40.7467 41.4586 39.8987 42.1808C36.4238 45.1481 31.9159 46.9401 26.9941 46.9401Z"
+                  fill="#ccc"
+                />
+              </Svg>
+            </View>
+          )} */}
           <Feather
             name="edit"
             size={18}
@@ -247,12 +319,20 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: Colors.text,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 80 / 2,
+  containerAvatar: {
+    backgroundColor: Colors.background,
     borderWidth: 4,
     borderColor: "#e3ece1",
+    borderRadius: 80 / 2,
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 72 / 2,
   },
   imageHeader: {
     width: "auto",

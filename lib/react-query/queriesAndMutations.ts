@@ -288,7 +288,7 @@ export const updateProfile = async (profile: UpdateUser) => {
     .update({
       username: profile.username,
       full_name: profile.full_name,
-      avatar_url: null,
+      avatar_url: profile.avatar_url,
       bio: profile.bio,
       location: profile.location,
       banner: null,

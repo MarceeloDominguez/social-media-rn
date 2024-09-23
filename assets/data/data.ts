@@ -5,7 +5,7 @@ export interface User {
   username: string;
   email: string;
   bio: string;
-  avatar: string;
+  avatar_url: string;
   location: string;
   banner: string;
 }
@@ -15,7 +15,7 @@ export interface UpdateUser {
   full_name: string;
   username: string;
   bio: string;
-  avatar: string | null;
+  avatar_url: string | null;
   location: string;
   banner: string | null;
 }
@@ -83,7 +83,7 @@ export const users: User[] = [
     username: "juanp",
     email: "juanp@example.com",
     bio: "Aficionado a la tecnología",
-    avatar:
+    avatar_url:
       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1760&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Buenos Aires, Argentina",
     banner: "",
@@ -94,7 +94,7 @@ export const users: User[] = [
     username: "marial",
     email: "marial@example.com",
     bio: "Amante de la fotografía",
-    avatar:
+    avatar_url:
       "https://plus.unsplash.com/premium_photo-1658527049634-15142565537a?q=80&w=1588&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Cali, Colombia",
     banner: "",

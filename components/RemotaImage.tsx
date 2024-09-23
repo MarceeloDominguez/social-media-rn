@@ -6,11 +6,13 @@ import { Colors } from "@/constants/Colors";
 type RemotaImageProps = {
   path: string;
   fallback?: string;
+  downloadStorage?: string;
 } & Omit<ComponentProps<typeof Image>, "source">;
 
 export default function RemotaImage({
   path,
   fallback,
+  downloadStorage = "posts-images",
   ...imageProps
 }: RemotaImageProps) {
   const [image, setImage] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export default function RemotaImage({
       }
 
       const { data, error } = await supabase.storage
-        .from("posts-images")
+        .from(downloadStorage)
         .download(path);
 
       if (error) {
