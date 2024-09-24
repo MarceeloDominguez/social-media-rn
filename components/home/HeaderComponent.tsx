@@ -1,9 +1,7 @@
 import {
   View,
   Text,
-  ImageBackground,
   ScrollView,
-  Image,
   StyleSheet,
   Pressable,
   ActivityIndicator,
@@ -13,6 +11,7 @@ import { Colors } from "@/constants/Colors";
 import SearchInput from "../SearchInput";
 import { Link } from "expo-router";
 import { useGetAllProfile } from "@/api/profile";
+import RemotaImage from "../RemotaImage";
 
 export default function HeaderComponent() {
   const { data: users, isLoading: isLoadingUsers } = useGetAllProfile();
@@ -34,32 +33,34 @@ export default function HeaderComponent() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.container}
       >
-        {users?.map((user) => (
-          <Link
-            href={`/profile/${user.id}` as `${string}:${string}`}
-            key={user.id}
-            asChild
-          >
-            <Pressable>
-              <ImageBackground
-                source={{
-                  uri: "https://cdn.pixabay.com/photo/2023/10/28/16/27/mountains-8347890_1280.jpg",
-                }}
-                style={styles.imageBackground}
-              >
-                <Image
-                  source={{ uri: users[0].avatar }}
-                  style={styles.avatar}
-                />
+        {users
+          ?.filter((user) => user.banner !== null)
+          .map((user) => (
+            <Link
+              href={`/profile/${user.id}` as `${string}:${string}`}
+              key={user.id}
+              asChild
+            >
+              <Pressable>
+                {!user.banner ? (
+                  <View style={styles.loadingBannerImage}>
+                    <ActivityIndicator size={22} color={Colors.tint} />
+                  </View>
+                ) : (
+                  <RemotaImage
+                    path={user.banner}
+                    style={styles.imageBackground}
+                    downloadStorage="banners"
+                  />
+                )}
                 <View style={styles.contentBottom}>
                   <Text style={styles.name} numberOfLines={1}>
                     {user.full_name}
                   </Text>
                 </View>
-              </ImageBackground>
-            </Pressable>
-          </Link>
-        ))}
+              </Pressable>
+            </Link>
+          ))}
       </ScrollView>
     </>
   );
@@ -76,6 +77,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 5,
     paddingHorizontal: 12,
+    flex: 1,
   },
   imageBackground: {
     width: 140,
@@ -84,6 +86,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 16,
     overflow: "hidden",
+    backgroundColor: "#e3ece1",
   },
   avatar: {
     width: 30,
@@ -94,20 +97,31 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   contentBottom: {
-    backgroundColor: Colors.text,
-    width: 140,
+    backgroundColor: Colors.tint,
     height: 50,
     justifyContent: "center",
     alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
   },
   name: {
     fontSize: 13,
     color: "#fff",
     fontFamily: "RobotoMedium",
+    textTransform: "capitalize",
   },
   containerIcon: {
     height: 220,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loadingBannerImage: {
+    width: 140,
+    aspectRatio: 1,
+    paddingTop: 40,
   },
 });

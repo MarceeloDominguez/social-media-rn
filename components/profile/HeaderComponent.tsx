@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
-import { User, users } from "@/assets/data/data";
+import { User } from "@/assets/data/data";
 import IconFollowing from "@expo/vector-icons/SimpleLineIcons";
 import { useAuth } from "@/provider/AuthProvider";
 import {
@@ -46,12 +46,16 @@ export default function HeaderComponent({ user }: HeaderComponentProps) {
   return (
     <View style={styles.container}>
       <View>
-        <Image
-          source={{
-            uri: "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
-          }}
-          style={styles.imageHeader}
-        />
+        {user.banner ? (
+          <RemotaImage
+            path={user.banner}
+            downloadStorage="banners"
+            style={styles.headerDefault}
+          />
+        ) : (
+          <View style={styles.headerDefault} />
+        )}
+
         {user.avatar_url ? (
           <View style={styles.containerAvatar}>
             <RemotaImage
@@ -133,9 +137,10 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 70,
   },
-  imageHeader: {
+  headerDefault: {
     width: "auto",
     aspectRatio: 1.7,
+    backgroundColor: "#e3ece1",
   },
   containerAvatar: {
     width: 110,

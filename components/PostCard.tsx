@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ActivityIndicator,
   Pressable,
@@ -88,8 +87,12 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
         <View style={styles.wrapperTopCard}>
           <Link href={`/profile/${user?.id}` as `${string}:${string}`} asChild>
             <Pressable style={styles.contentTopCard}>
-              {user?.avatar ? (
-                <Image source={{ uri: user?.avatar }} style={styles.avatar} />
+              {user?.avatar_url ? (
+                <RemotaImage
+                  path={user.avatar_url}
+                  style={styles.avatar}
+                  downloadStorage="avatars"
+                />
               ) : (
                 <Svg width="45" height="45" viewBox="0 0 54 54" fill="none">
                   <Path
@@ -188,8 +191,9 @@ const styles = StyleSheet.create({
     width: 45,
     aspectRatio: 1,
     borderRadius: 45 / 2,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: Colors.tint,
+    resizeMode: "contain",
   },
   name: {
     fontSize: 15,

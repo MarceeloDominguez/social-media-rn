@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Image,
   Pressable,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -28,7 +27,7 @@ export default function ScreenEditProfile() {
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [banner, setBanner] = useState<string | null>("");
+  const [banner, setBanner] = useState<string | null>(null);
   const [errors, setErrors] = useState("");
 
   const { id } = useLocalSearchParams();
@@ -48,6 +47,7 @@ export default function ScreenEditProfile() {
       setLocation(updatingProfile.location);
       setBio(updatingProfile.bio);
       setAvatar(updatingProfile.avatar_url);
+      setBanner(updatingProfile.banner);
     }
   }, [updatingProfile]);
 
@@ -60,6 +60,8 @@ export default function ScreenEditProfile() {
     setUsername("@");
     setLocation("");
     setBio("");
+    setAvatar(null);
+    setBanner(null);
   };
 
   const validateInput = () => {
@@ -79,6 +81,7 @@ export default function ScreenEditProfile() {
     }
 
     const avatarPath = await uploadAvatar();
+    const bannerPath = await uploadBanner();
 
     updateProfile(
       {
@@ -88,7 +91,7 @@ export default function ScreenEditProfile() {
         bio,
         id: id.toString(),
         avatar_url: avatarPath!,
-        banner: null,
+        banner: bannerPath!,
       },
       {
         onSuccess: () => {
@@ -145,6 +148,41 @@ export default function ScreenEditProfile() {
     }
   };
 
+  const pickBanner = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setBanner(result.assets[0].uri);
+    }
+  };
+
+  const uploadBanner = async () => {
+    if (!banner?.startsWith("file://")) {
+      return;
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(banner, {
+      encoding: "base64",
+    });
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+
+    const { data, error } = await supabase.storage
+      .from("banners")
+      .upload(filePath, decode(base64), { contentType });
+
+    console.log("Error al subir el avatar...", error);
+
+    if (data) {
+      return data.path;
+    }
+  };
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -159,14 +197,17 @@ export default function ScreenEditProfile() {
         }}
       />
       <View>
-        <Image
-          source={{
-            uri: "https://cdn.pixabay.com/photo/2023/09/04/17/48/flamingos-8233303_1280.jpg",
-          }}
-          style={styles.imageHeader}
-        />
+        {updatingProfile?.banner ? (
+          <RemotaImage
+            path={updatingProfile.banner}
+            style={styles.headerDefault}
+            downloadStorage="banners"
+          />
+        ) : (
+          <View style={styles.headerDefault} />
+        )}
         <Feather
-          onPress={() => console.log("Editar imagen de portada...")}
+          onPress={pickBanner}
           name="edit"
           size={18}
           color={Colors.text}
@@ -191,24 +232,6 @@ export default function ScreenEditProfile() {
               </Svg>
             </View>
           )}
-          {/* {updatingProfile?.avatar_url ? (
-            <View style={styles.containerAvatar}>
-              <RemotaImage
-                path={updatingProfile.avatar_url}
-                style={styles.avatar}
-                downloadStorage="avatars"
-              />
-            </View>
-          ) : (
-            <View style={styles.containerAvatar}>
-              <Svg style={styles.avatar} viewBox="0 0 54 54" fill="none">
-                <Path
-                  d="M27 0.00146484C12.0899 0.00146484 0 12.089 0 27.0003C0 41.9116 12.0887 53.9991 27 53.9991C41.9125 53.9991 54 41.9116 54 27.0003C54 12.089 41.9125 0.00146484 27 0.00146484ZM27 8.07443C31.9337 8.07443 35.9316 12.0735 35.9316 17.0048C35.9316 21.9373 31.9337 25.9353 27 25.9353C22.0687 25.9353 18.0708 21.9373 18.0708 17.0048C18.0708 12.0735 22.0687 8.07443 27 8.07443ZM26.9941 46.9401C22.0734 46.9401 17.5667 45.1481 14.0906 42.182C13.2438 41.4597 12.7552 40.4007 12.7552 39.2894C12.7552 34.2881 16.803 30.2854 21.8054 30.2854H32.197C37.2006 30.2854 41.2329 34.2881 41.2329 39.2894C41.2329 40.4018 40.7467 41.4586 39.8987 42.1808C36.4238 45.1481 31.9159 46.9401 26.9941 46.9401Z"
-                  fill="#ccc"
-                />
-              </Svg>
-            </View>
-          )} */}
           <Feather
             name="edit"
             size={18}
@@ -334,10 +357,11 @@ const styles = StyleSheet.create({
     height: 72,
     borderRadius: 72 / 2,
   },
-  imageHeader: {
+  headerDefault: {
     width: "auto",
     height: 150,
     borderRadius: 16,
+    backgroundColor: "#e3ece1",
   },
   containerIconAvatar: {
     position: "absolute",

@@ -291,7 +291,7 @@ export const updateProfile = async (profile: UpdateUser) => {
       avatar_url: profile.avatar_url,
       bio: profile.bio,
       location: profile.location,
-      banner: null,
+      banner: profile.banner,
     })
     .eq("id", profile.id)
     .select()
