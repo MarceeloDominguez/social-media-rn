@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 5,
     paddingHorizontal: 12,
-    flex: 1,
   },
   imageBackground: {
     width: 140,

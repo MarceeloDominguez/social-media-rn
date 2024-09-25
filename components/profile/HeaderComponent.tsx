@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "RobotoBold",
     color: Colors.text,
+    textTransform: "capitalize",
   },
   location: {
     fontFamily: "RobotoMedium",

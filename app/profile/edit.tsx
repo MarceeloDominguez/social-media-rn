@@ -14,25 +14,28 @@ import { Feather } from "@expo/vector-icons";
 import { useGetProfileById, useUpdateProfile } from "@/api/profile";
 import Loading from "@/components/Loading";
 import Svg, { Path } from "react-native-svg";
-import * as ImagePicker from "expo-image-picker";
-import { supabase } from "@/lib/supabase";
-import { randomUUID } from "expo-crypto";
-import { decode } from "base64-arraybuffer";
-import * as FileSystem from "expo-file-system";
 import RemotaImage from "@/components/RemotaImage";
+import useImageUpload from "@/hooks/useImageUpload";
 
 export default function ScreenEditProfile() {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("@");
   const [location, setLocation] = useState("");
   const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [banner, setBanner] = useState<string | null>(null);
   const [errors, setErrors] = useState("");
 
   const { id } = useLocalSearchParams();
 
   const { data: updatingProfile } = useGetProfileById(id.toString());
+
+  const {
+    pickAvatar,
+    pickBanner,
+    uploadAvatar,
+    uploadBanner,
+    setAvatar,
+    setBanner,
+  } = useImageUpload();
 
   const {
     mutate: updateProfile,
@@ -110,76 +113,6 @@ export default function ScreenEditProfile() {
       // Solo permitir un @ al principio y eliminar cualquier otro @
       const cleanedText = `@${text.slice(1).replace(/@/g, "")}`;
       setUsername(cleanedText);
-    }
-  };
-
-  const pickAvatar = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
-    }
-  };
-
-  const uploadAvatar = async () => {
-    if (!avatar?.startsWith("file://")) {
-      return;
-    }
-
-    const base64 = await FileSystem.readAsStringAsync(avatar, {
-      encoding: "base64",
-    });
-    const filePath = `${randomUUID()}.png`;
-    const contentType = "image/png";
-
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, decode(base64), { contentType });
-
-    console.log("Error al subir el avatar...", error);
-
-    if (data) {
-      return data.path;
-    }
-  };
-
-  const pickBanner = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setBanner(result.assets[0].uri);
-    }
-  };
-
-  const uploadBanner = async () => {
-    if (!banner?.startsWith("file://")) {
-      return;
-    }
-
-    const base64 = await FileSystem.readAsStringAsync(banner, {
-      encoding: "base64",
-    });
-    const filePath = `${randomUUID()}.png`;
-    const contentType = "image/png";
-
-    const { data, error } = await supabase.storage
-      .from("banners")
-      .upload(filePath, decode(base64), { contentType });
-
-    console.log("Error al subir el avatar...", error);
-
-    if (data) {
-      return data.path;
     }
   };
 

@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "RobotoBold",
     marginRight: 5,
+    textTransform: "capitalize",
   },
   username: {
     color: Colors.text,
