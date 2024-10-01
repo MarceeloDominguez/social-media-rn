@@ -133,18 +133,25 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
         <ImageDefault />
       )}
       <View style={styles.wrapperBottomCard}>
-        <UserLikesCard postId={post.id} />
         <View style={styles.contentBottomEnd}>
-          <View style={styles.contentIconHeart}>
-            <Text style={styles.countLikes}>
-              {likes?.length !== 0 && likes?.length}
-            </Text>
+          <View style={styles.containerIcon}>
             <Ionicons
               name={alreadyLiked ? "heart" : "heart-outline"}
               size={22}
               color={alreadyLiked ? "#dd0808" : Colors.icon}
               onPress={toggleLike}
             />
+            <Text style={styles.numberIcon}>
+              {likes?.length !== 0 && likes?.length}
+            </Text>
+          </View>
+          <View style={styles.containerIcon}>
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={22}
+              color={Colors.icon}
+            />
+            <Text style={styles.numberIcon}>10</Text>
           </View>
           <Ionicons
             name={alreadySaved ? "bookmark" : "bookmark-outline"}
@@ -153,8 +160,9 @@ export default function PostCard({ post, showUser = false }: PostCardProps) {
             onPress={toggleSaved}
           />
         </View>
+        {likes?.length! > 0 && <UserLikesCard postId={post.id} />}
       </View>
-      <View style={{ paddingHorizontal: 10, paddingBottom: 10, paddingTop: 4 }}>
+      <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
         <PostDescription description={post.description} />
         <Text style={styles.time}>{formattedDate}</Text>
       </View>
@@ -212,27 +220,25 @@ const styles = StyleSheet.create({
     aspectRatio: 1.5,
   },
   wrapperBottomCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     padding: 10,
+    gap: 10,
   },
   contentBottomEnd: {
     flexDirection: "row",
-    gap: 10,
+    gap: 15,
     alignItems: "center",
   },
-  contentIconHeart: {
+  containerIcon: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
   },
-  countLikes: {
+  numberIcon: {
     fontSize: 13,
     fontFamily: "RobotoMedium",
     color: Colors.text,
   },
   time: {
-    textAlign: "right",
     fontSize: 12,
     marginTop: 10,
     color: Colors.text,

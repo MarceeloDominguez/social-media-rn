@@ -1,16 +1,10 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  Dimensions,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Dimensions } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { useGetLikes } from "@/api/post";
 import Loading from "./Loading";
 import Svg, { Path } from "react-native-svg";
+import RemotaImage from "./RemotaImage";
 
 type UserLikesCardProps = {
   postId: string;
@@ -31,15 +25,19 @@ export default function UserLikesCard({ postId }: UserLikesCardProps) {
   return (
     <View style={styles.container}>
       {users?.map((user, index) => (
-        <Pressable key={index} style={styles.contentAvatars}>
+        <Pressable
+          key={index}
+          style={[styles.contentAvatars, { zIndex: users.length - index }]}
+        >
           {user.avatar_url ? (
-            <Image
-              style={[{ zIndex: 4 - index, left: index * 15 }, styles.avatar]}
-              source={{ uri: user.avatar_url }}
+            <RemotaImage
+              path={user.avatar_url}
+              style={[{ left: index * 15 }, styles.avatar]}
+              downloadStorage="avatars"
             />
           ) : (
             <Svg
-              style={[{ zIndex: 4 - index, left: index * 15 }, styles.avatar]}
+              style={[{ left: index * 15 }, styles.avatar]}
               viewBox="0 0 54 54"
               fill="none"
             >
@@ -84,6 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: 20 / 2,
     position: "absolute",
     borderColor: Colors.tint,
+    resizeMode: "contain",
   },
   name: {
     fontSize: 13,
